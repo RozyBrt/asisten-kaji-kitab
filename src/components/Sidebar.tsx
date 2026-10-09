@@ -129,8 +129,8 @@ export default function Sidebar({ activeModule, onModuleChange, isOpen, onClose 
         <div className="p-4 border-t border-emerald-100">
           <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 rounded-lg">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse-gentle" />
-            <span className="text-[11px] text-emerald-700 font-medium">
-              Sistem RAG Aktif
+            <span className="text-[11px] text-amber-800 font-medium">
+              Knowledge base: simulasi
             </span>
           </div>
         </div>

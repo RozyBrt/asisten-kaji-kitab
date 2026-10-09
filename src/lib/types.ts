@@ -1,5 +1,7 @@
 // Types for the Asisten Kaji Kitab application
 
+import type { AiProviderStatus } from './ai-provider';
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -9,6 +11,7 @@ export interface ChatMessage {
   imagePreview?: string; // Thumbnail preview URL
   arabicText?: string; // OCR result or Arabic text
   sources?: KitabSource[];
+  isOcr?: boolean;
   isLoading?: boolean;
 }
 
@@ -74,6 +77,7 @@ export interface ChatApiResponse {
   arabicText?: string;
   sources?: KitabSource[];
   isOcr?: boolean;
+  aiStatus?: AiProviderStatus;
 }
 
 export type ActiveModule = 'kaji-kitab' | 'hafalan' | 'upload';

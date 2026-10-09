@@ -1,10 +1,33 @@
-// API Route Handler: /api/chat
-// Supports text + multimodal image (Base64) payloads
-// Falls back to mock responses when GEMINI_API_KEY is not set
+﻿// API Route Handler: /api/chat
+// Mendukung SumoPod (OpenAI-compatible) & Google Gemini API
+// Mendukung payload teks + gambar (Base64) Multimodal Vision
+// Otomatis fallback ke mock data jika API Key belum diisi
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getAiProviderStatus, getGeminiApiKey, getSumopodApiKey, type AiProviderMode } from '@/lib/ai-provider';
 import { getMockChatResponse } from '@/lib/mock-data';
 import { ChatApiRequest, ChatApiResponse } from '@/lib/types';
+
+const SYSTEM_PROMPT = "Anda adalah Asisten AI Kaji Kitab & Turats, asisten kecerdasan buatan akademis-islami yang membantu mengkaji kitab-kitab turats (klasik Islam) dan hafalan.\n\n" +
+  "Tugas dan Aturan:\n" +
+  "1. Jawab pertanyaan seputar fiqih, ushul fiqh, aqidah, tasawuf, dan hadits berdasarkan rujukan kitab turats yang mu'tabar (seperti Fathul Qarib, Safinatun Najah, Ihya Ulumiddin, Bidayatul Hidayah, dll).\n" +
+  "2. Jika ada gambar halaman kitab yang dikirimkan, lakukan OCR/transkripsi teks Arab matan, lalu jelaskan syarahnya dalam Bahasa Indonesia yang runut dan jelas.\n" +
+  "3. Selalu sertakan rujukan sumber kitab yang jelas (Nama Kitab, Bab/Pasal, dan estimasi halaman jika ada).\n" +
+  "4. Tampilkan teks matan Arab dengan lafal yang jelas.\n" +
+  "5. Anda adalah asisten penelusuran referensi (Khadim/Mu'in), bukan Mufti independen. Berikan penjelasan edukatif yang santun.\n\n" +
+  "PENTING: Selalu kembalikan respons HANYA dalam format JSON valid dengan struktur persis berikut:\n" +
+  "{\n" +
+  '  "reply": "Ringkasan penjelasan syarah dalam Bahasa Indonesia (mendukung formatting markdown seperti **tebal**, bullet point, dll)",\n' +
+  '  "arabicText": "Teks Arab matan atau ayat/hadits yang relevan (opsional, string)",\n' +
+  '  "sources": [\n' +
+  '    {\n' +
+  '      "kitabName": "Nama Kitab (misal: Fathul Qarib al-Mujib)",\n' +
+  '      "bab": "Bab/Pasal (misal: Bab Fardhu Wudhu)",\n' +
+  '      "halaman": "Halaman/Fasal (misal: Hal. 12-14)"\n' +
+  '    }\n' +
+  '  ],\n' +
+  '  "isOcr": false\n' +
+  '}';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,27 +41,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const sumopodApiKey = getSumopodApiKey();
+    const geminiApiKey = getGeminiApiKey();
 
-    // If API key is available, use Gemini
-    if (apiKey) {
+    // 1. Prioritaskan SumoPod jika API Key SumoPod tersedia
+    if (sumopodApiKey) {
       try {
-        const response = await callGeminiApi(apiKey, message, image, conversationHistory);
-        return NextResponse.json(response);
-      } catch (apiError) {
-        console.error('Gemini API error, falling back to mock:', apiError);
-        // Fall through to mock response
+        const response = await callSumoPodApi(sumopodApiKey, message, image, conversationHistory);
+        return withProviderStatus(response, 'sumopod');
+      } catch (sumoError) {
+        console.error('SumoPod API error, mencoba fallback:', sumoError);
       }
     }
 
-    // Mock / fallback response with simulated streaming delay
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
-    
+    // 2. Gunakan Google Gemini jika GEMINI_API_KEY tersedia
+    if (geminiApiKey && geminiApiKey.trim() !== '') {
+      try {
+        const response = await callGeminiApi(geminiApiKey, message, image, conversationHistory);
+        return withProviderStatus(response, 'gemini');
+      } catch (geminiError) {
+        console.error('Gemini API error, mencoba fallback:', geminiError);
+      }
+    }
+
+    // 3. Mock Fallback (Jika API key belum diisi atau kedua API gagal)
+    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 800));
     const mockResponse = getMockChatResponse(message || '', !!image);
-    return NextResponse.json(mockResponse);
+    return withProviderStatus(mockResponse, 'mock');
 
   } catch (error) {
-    console.error('Chat API error:', error);
+    console.error('Chat API general error:', error);
     return NextResponse.json(
       { error: 'Terjadi kesalahan pada server. Silakan coba lagi.' },
       { status: 500 }
@@ -46,36 +78,110 @@ export async function POST(request: NextRequest) {
   }
 }
 
+function withProviderStatus(response: ChatApiResponse, mode: AiProviderMode) {
+  return NextResponse.json({
+    ...response,
+    aiStatus: getAiProviderStatus(mode, 'response'),
+  });
+}
+
+// ============================================================
+// Integrasi SumoPod (OpenAI Compatible)
+// ============================================================
+async function callSumoPodApi(
+  apiKey: string,
+  message: string,
+  image?: string,
+  conversationHistory?: { role: string; content: string }[]
+): Promise<ChatApiResponse> {
+  const rawBaseUrl = process.env.SUMOPOD_BASE_URL || 'https://ai.sumopod.com';
+  let endpoint = rawBaseUrl.replace(/\/+$/, '');
+  if (!endpoint.endsWith('/chat/completions')) {
+    endpoint = endpoint.endsWith('/v1') ? `${endpoint}/chat/completions` : `${endpoint}/v1/chat/completions`;
+  }
+
+  const model = process.env.SUMOPOD_MODEL || 'gpt-4o-mini';
+
+  const messages: Array<{ role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [
+    { role: 'system', content: SYSTEM_PROMPT }
+  ];
+
+  if (conversationHistory && conversationHistory.length > 0) {
+    for (const item of conversationHistory.slice(-4)) {
+      messages.push({
+        role: item.role === 'assistant' ? 'assistant' : 'user',
+        content: item.content
+      });
+    }
+  }
+
+  if (image) {
+    messages.push({
+      role: 'user',
+      content: [
+        { type: 'text', text: message || 'Tolong transkripsi teks Arab pada foto kitab ini dan berikan syarah penjelasannya serta rujukan kitab.' },
+        { type: 'image_url', image_url: { url: image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}` } }
+      ]
+    });
+  } else {
+    messages.push({
+      role: 'user',
+      content: message || 'Mohon penjelasan materi kitab turats terkait.'
+    });
+  }
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey.trim()}`
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      response_format: { type: 'json_object' },
+      temperature: 0.6,
+      max_tokens: 2048
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`SumoPod API returned ${response.status}: ${errorText}`);
+  }
+
+  const data = await response.json();
+  const rawContent = data.choices?.[0]?.message?.content;
+
+  if (!rawContent) {
+    throw new Error('Respons kosong dari SumoPod');
+  }
+
+  try {
+    const parsed = JSON.parse(rawContent) as ChatApiResponse;
+    return parsed;
+  } catch {
+    return {
+      reply: rawContent,
+      sources: []
+    };
+  }
+}
+
+// ============================================================
+// Integrasi Google Gemini API
+// ============================================================
 async function callGeminiApi(
   apiKey: string,
   message: string,
   image?: string,
   conversationHistory?: { role: string; content: string }[]
 ): Promise<ChatApiResponse> {
-  const systemPrompt = `Anda adalah Asisten AI Kaji Kitab & Turats, sebuah asisten AI yang membantu mengkaji kitab-kitab turats (klasik Islam). 
-
-Tugas Anda:
-1. Menjawab pertanyaan tentang fiqih, aqidah, tasawuf, hadits, dan ilmu keislaman lainnya berdasarkan kitab-kitab turats.
-2. Jika ada gambar halaman kitab yang diunggah, lakukan OCR/transkripsi teks Arab, lalu berikan penjelasan/syarah dalam Bahasa Indonesia.
-3. Selalu sertakan rujukan sumber dari kitab yang relevan (nama kitab, bab, halaman jika tersedia).
-4. Jawab dalam Bahasa Indonesia yang baik dan mudah dipahami.
-5. Jika ada teks Arab, tampilkan dalam format yang jelas.
-
-Format respons JSON:
-{
-  "reply": "Jawaban utama dalam Bahasa Indonesia (mendukung markdown)",
-  "arabicText": "Teks Arab yang relevan (opsional)",
-  "sources": [{"kitabName": "Nama Kitab", "bab": "Bab/Pasal", "halaman": "Nomor Halaman"}],
-  "isOcr": false
-}`;
-
-  // Build the content parts
   const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
 
-  // Add conversation context
   if (conversationHistory && conversationHistory.length > 0) {
     const contextText = conversationHistory
-      .slice(-6) // Last 6 messages for context
+      .slice(-4)
       .map(m => `${m.role === 'user' ? 'Pengguna' : 'Asisten'}: ${m.content}`)
       .join('\n');
     parts.push({ text: `Konteks percakapan sebelumnya:\n${contextText}\n\n` });
@@ -83,7 +189,6 @@ Format respons JSON:
 
   parts.push({ text: message || 'Tolong analisis dan transkripsi gambar halaman kitab ini.' });
 
-  // Add image if present
   if (image) {
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
     parts.push({
@@ -95,23 +200,18 @@ Format respons JSON:
   }
 
   const requestBody = {
-    contents: [{
-      parts,
-    }],
+    contents: [{ parts }],
     systemInstruction: {
-      parts: [{ text: systemPrompt }],
+      parts: [{ text: SYSTEM_PROMPT }],
     },
     generationConfig: {
-      temperature: 0.7,
-      topP: 0.9,
-      topK: 40,
+      temperature: 0.6,
       maxOutputTokens: 2048,
       responseMimeType: 'application/json',
     },
   };
 
-  const modelName = image ? 'gemini-2.0-flash' : 'gemini-2.0-flash';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey.trim()}`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -134,7 +234,6 @@ Format respons JSON:
   try {
     return JSON.parse(rawText) as ChatApiResponse;
   } catch {
-    // If JSON parsing fails, return as plain text response
     return {
       reply: rawText,
       sources: [],
