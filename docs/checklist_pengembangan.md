@@ -16,6 +16,6 @@ Dokumen ini berfungsi sebagai panduan bagi pengembang (dan asisten AI di masa de
 
 ### ? APA YANG BELUM DIBUAT (Peta Jalan / Roadmap Lanjutan)
 - [ ] **Perekam Suara Lisan (Speech-to-Text):** Menambahkan mikrofon agar sistem bisa mendengarkan dan mengoreksi hafalan pengguna secara langsung menggunakan suara (Misal: API Whisper).
-- [ ] **Ekstraksi PDF Nyata (Real RAG):** Mengganti layar panel "Unggah Dokumen" yang saat ini hanya UI interaktif (bohongan), menjadi pipeline yang benar-benar membaca baris teks PDF dan mengubahnya ke Vector Database (seperti Pinecone/ChromaDB).
+- [x] **Ekstraksi PDF Nyata (Real RAG & Vision OCR):** Panel "Unggah Dokumen" kini sepenuhnya fungsional. Mampu mengekstrak teks PDF digital (via unpdf) dan mentranskripsikan PDF Scan / Gambar kitab secara otomatis (via Vision OCR SumoPod/Gemini), lalu mengindeksnya ke Vector Database in-memory (.vector-store.json).
 - [ ] **Sistem Registrasi & Akun:** Fitur login untuk pengguna (Misal: Firebase / NextAuth).
 - [ ] **Database Riwayat Persisten:** Menyimpan sesi riwayat percakapan (history) agar tidak hilang saat pengguna memuat ulang (refresh) halaman peramban (Misal: PostgreSQL / MongoDB).

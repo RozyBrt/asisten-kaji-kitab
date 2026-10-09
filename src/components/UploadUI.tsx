@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { mockDocuments } from '@/lib/mock-data';
 import { UploadedDocument } from '@/lib/types';
 
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
-const ALLOWED_FILE_EXTENSIONS = new Set(['pdf', 'doc', 'docx', 'txt']);
+const ALLOWED_FILE_EXTENSIONS = new Set(['pdf', 'png', 'jpg', 'jpeg', 'webp', 'doc', 'docx', 'txt']);
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -16,12 +16,20 @@ function FileIcon({ type }: { type: string }) {
     pdf: 'from-rose-500 to-rose-600',
     word: 'from-blue-500 to-blue-600',
     txt: 'from-slate-500 to-slate-600',
+    image: 'from-amber-500 to-amber-600',
   };
-  const labels: Record<string, string> = { pdf: 'PDF', word: 'DOC', txt: 'TXT' };
+  const labels: Record<string, string> = {
+    pdf: 'PDF',
+    word: 'DOC',
+    txt: 'TXT',
+    image: 'IMG',
+  };
+
+  const key = ['png', 'jpg', 'jpeg', 'webp'].includes(type) ? 'image' : type;
 
   return (
-    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colors[type] || colors.txt} flex items-center justify-center shadow-md`}>
-      <span className="text-[10px] font-bold text-white">{labels[type] || 'FILE'}</span>
+    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colors[key] || colors.txt} flex items-center justify-center shadow-md`}>
+      <span className="text-[10px] font-bold text-white">{labels[key] || 'FILE'}</span>
     </div>
   );
 }
@@ -34,13 +42,13 @@ function StatusBadge({ status }: { status: UploadedDocument['status'] }) {
   };
   const labels: Record<string, string> = {
     indexed: '✓ Terindeks',
-    indexing: '⟳ Mengindeks...',
-    error: '✗ Gagal',
+    indexing: '⏳ Mengindeks...',
+    error: '✕ Gagal',
   };
 
   return (
     <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-bold border rounded-full ${styles[status]}`}>
-      {status === 'indexing' && <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse-gentle mr-1" />}
+      {status === 'indexing' && <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse mr-1" />}
       {labels[status]}
     </span>
   );
@@ -48,31 +56,95 @@ function StatusBadge({ status }: { status: UploadedDocument['status'] }) {
 
 function CategoryBadge({ category }: { category?: string }) {
   if (!category) return null;
-  const colors: Record<string, string> = {
-    Fiqih: 'bg-emerald-50 text-emerald-700',
-    Akhlaq: 'bg-purple-50 text-purple-700',
-    Tasawuf: 'bg-blue-50 text-blue-700',
-    Hadits: 'bg-amber-50 text-amber-700',
-    Tafsir: 'bg-rose-50 text-rose-700',
-  };
-
   return (
-    <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${colors[category] || 'bg-slate-50 text-slate-600'}`}>
+    <span className="px-2 py-0.5 text-[10px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md">
       {category}
     </span>
   );
 }
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// Helper untuk memuat pdf.js di browser secara dinamis
+const loadPdfJs = async () => {
+  if (typeof window === 'undefined') return null;
+  // @ts-expect-error global pdfjsLib
+  if (window.pdfjsLib) return window.pdfjsLib;
+
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = () => {
+      // @ts-expect-error global pdfjsLib
+      const pdfjs = window.pdfjsLib;
+      pdfjs.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      resolve(pdfjs);
+    };
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+};
+
 export default function UploadUI() {
-  const [documents, setDocuments] = useState<UploadedDocument[]>(mockDocuments);
+  const [documents, setDocuments] = useState<UploadedDocument[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [visionProgress, setVisionProgress] = useState<{
+    docName: string;
+    currentPage: number;
+    totalPages: number;
+    stage: string;
+  } | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchIndexedDocs = useCallback(async () => {
+    try {
+      const res = await fetch('/api/rag');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+
+      if (Array.isArray(data.documents) && data.documents.length > 0) {
+        const mapped: UploadedDocument[] = data.documents.map((doc: { docId: string; docName: string; chunkCount: number }) => {
+          const name = doc.docName || doc.docId.replace(/^\d+-/, '');
+          const ext = name.split('.').pop()?.toLowerCase() || 'pdf';
+          const type: 'pdf' | 'word' | 'txt' = ['png', 'jpg', 'jpeg', 'webp'].includes(ext) ? 'pdf' : (ext === 'pdf' ? 'pdf' : (ext === 'docx' || ext === 'doc' ? 'word' : 'txt'));
+          return ({
+          id: doc.docId,
+          name: name,
+          type: type,
+          size: `${doc.chunkCount} chunk`,
+          uploadedAt: new Date(),
+          status: 'indexed' as const,
+          category: 'Umum',
+        });
+        });
+        setDocuments(mapped);
+      } else {
+        setDocuments([]);
+      }
+    } catch {
+      // Fallback ke mock jika offline
+      setDocuments(mockDocuments);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchIndexedDocs();
+  }, [fetchIndexedDocs]);
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-
     const files = Array.from(e.dataTransfer.files);
     addFiles(files);
   };
@@ -83,200 +155,376 @@ export default function UploadUI() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const addFiles = (files: File[]) => {
+  const processScannedPdfWithVision = async (
+    file: File,
+    docId: string,
+    totalPages: number,
+    tempDocId: string
+  ) => {
+    try {
+      setVisionProgress({
+        docName: file.name,
+        currentPage: 0,
+        totalPages,
+        stage: 'Menyiapkan modul pembaca visual...',
+      });
+
+            const pdfjs = await loadPdfJs();
+      if (!pdfjs) throw new Error('Gagal memuat modul PDF.js di browser.');
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      const numPages = Math.min(pdfDoc.numPages, totalPages, 100);
+
+      let totalIndexedChunks = 0;
+
+      for (let i = 1; i <= numPages; i++) {
+        setVisionProgress({
+          docName: file.name,
+          currentPage: i,
+          totalPages: numPages,
+          stage: `Membaca & mentranskripsikan halaman ${i} dari ${numPages} dengan AI Vision...`,
+        });
+
+        const page = await pdfDoc.getPage(i);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) continue;
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const imageBase64 = canvas.toDataURL('image/jpeg', 0.85);
+
+        // Kirim halaman gambar ke API RAG Vision
+        const visionRes = await fetch('/api/rag', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'vision-page',
+            docId,
+            docName: file.name,
+            pageNumber: i,
+            imageBase64,
+          }),
+        });
+
+        if (visionRes.ok) {
+          const vData = await visionRes.json();
+          totalIndexedChunks += vData.nChunks || 0;
+        }
+      }
+
+      setVisionProgress(null);
+      setDocuments(prev =>
+        prev.map(d =>
+          d.id === tempDocId
+            ? { ...d, id: docId, status: 'indexed' as const, size: `${totalIndexedChunks} chunk` }
+            : d
+        )
+      );
+      setUploadSuccess(`Kitab "${file.name}" berhasil di-index dengan AI Vision (${totalIndexedChunks} chunk).`);
+      setTimeout(() => setUploadSuccess(null), 8000);
+
+    } catch (err) {
+      console.error('Vision processing error:', err);
+      setVisionProgress(null);
+      setDocuments(prev =>
+        prev.map(d => d.id === tempDocId ? { ...d, status: 'error' as const } : d)
+      );
+      setUploadError(`Gagal memproses visual kitab "${file.name}": ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+
+  const addFiles = async (files: File[]) => {
     const acceptedFiles = files.filter((file) => {
       const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
       return ALLOWED_FILE_EXTENSIONS.has(ext) && file.size <= MAX_FILE_SIZE_BYTES;
     });
-    const unsupportedCount = files.filter((file) => {
-      const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-      return !ALLOWED_FILE_EXTENSIONS.has(ext);
-    }).length;
-    const oversizedCount = files.filter((file) => file.size > MAX_FILE_SIZE_BYTES).length;
 
-    if (unsupportedCount || oversizedCount) {
-      const issues = [
-        unsupportedCount ? `${unsupportedCount} file berformat tidak didukung` : '',
-        oversizedCount ? `${oversizedCount} file melebihi batas 50 MB` : '',
-      ].filter(Boolean);
-      setUploadError(`${issues.join(' dan ')}; file tersebut tidak ditambahkan.`);
-    } else {
-      setUploadError(null);
+    if (acceptedFiles.length === 0) {
+      setUploadError('Pilih file berformat PDF atau Gambar (PNG/JPG/WEBP) dengan ukuran maksimal 50 MB.');
+      return;
     }
 
-    if (acceptedFiles.length === 0) return;
+    setUploadError(null);
+    setUploadSuccess(null);
+    setIsUploading(true);
 
-    const newDocs: UploadedDocument[] = acceptedFiles.map((file) => {
-      const ext = file.name.split('.').pop()?.toLowerCase();
-      let type: 'pdf' | 'word' | 'txt' = 'txt';
-      if (ext === 'pdf') type = 'pdf';
-      else if (ext === 'doc' || ext === 'docx') type = 'word';
+    for (const file of acceptedFiles) {
+      const tempId = `uploading-${Date.now()}-${file.name}`;
+      const ext = file.name.split('.').pop()?.toLowerCase() ?? 'pdf';
+      const type: 'pdf' | 'word' | 'txt' = ext === 'pdf' ? 'pdf' : 'pdf';
 
-      return {
-        id: `doc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      const tempDoc: UploadedDocument = {
+        id: tempId,
         name: file.name,
         type,
         size: formatFileSize(file.size),
         uploadedAt: new Date(),
         status: 'indexing',
-        category: 'Fiqih',
+        category: 'Kajian Turats',
       };
-    });
+      setDocuments(prev => [tempDoc, ...prev]);
 
-    setDocuments(prev => [...newDocs, ...prev]);
+      try {
+        const form = new FormData();
+        form.append('file', file);
 
-    // Simulate indexing completion after delay
-    setTimeout(() => {
-      setDocuments(prev =>
-        prev.map(doc =>
-          newDocs.some(nd => nd.id === doc.id)
-            ? { ...doc, status: 'indexed' as const }
-            : doc
-        )
-      );
-    }, 3000);
+        const res = await fetch('/api/rag', { method: 'POST', body: form });
+        const data = await res.json();
+
+        if (res.ok && data.docId) {
+          if (data.needsVision) {
+            // PDF terdeteksi gambar scan -> jalankan render browser per halaman
+            await processScannedPdfWithVision(file, data.docId, data.totalPages || 1, tempId);
+          } else {
+            // Berhasil di-index langsung
+            setDocuments(prev =>
+              prev.map(d =>
+                d.id === tempId
+                  ? { ...d, id: data.docId, status: 'indexed' as const, size: `${data.nChunks} chunk` }
+                  : d
+              )
+            );
+            setUploadSuccess(`"${file.name}" berhasil di-index (${data.nChunks} chunk).`);
+            setTimeout(() => setUploadSuccess(null), 6000);
+          }
+        } else {
+          setDocuments(prev =>
+            prev.map(d => d.id === tempId ? { ...d, status: 'error' as const } : d)
+          );
+          setUploadError(`Gagal meng-index "${file.name}": ${data.error ?? 'Unknown error'}`);
+        }
+      } catch (err) {
+        setDocuments(prev =>
+          prev.map(d => d.id === tempId ? { ...d, status: 'error' as const } : d)
+        );
+        setUploadError(`Gagal mengunggah file "${file.name}". ${err instanceof Error ? err.message : ''}`);
+      }
+    }
+
+    setIsUploading(false);
   };
 
-  const removeDocument = (id: string) => {
-    setDocuments(prev => prev.filter(doc => doc.id !== id));
+  const removeDocument = async (id: string, name: string) => {
+    try {
+      const res = await fetch('/api/rag', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ docId: id }),
+      });
+      if (res.ok) {
+        setDocuments(prev => prev.filter(d => d.id !== id));
+        setUploadSuccess(`Dokumen "${name}" berhasil dihapus dari Knowledge Base.`);
+        setTimeout(() => setUploadSuccess(null), 4000);
+      } else {
+        setUploadError(`Gagal menghapus dokumen "${name}".`);
+      }
+    } catch {
+      setDocuments(prev => prev.filter(d => d.id !== id));
+    }
   };
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
+  const filteredDocs = documents.filter(doc => {
+    const matchSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchCat = selectedCategory === 'Semua' || doc.category === selectedCategory;
+    return matchSearch && matchCat;
+  });
 
-  const indexedCount = documents.filter(d => d.status === 'indexed').length;
-  const indexingCount = documents.filter(d => d.status === 'indexing').length;
+  const categories = ['Semua', 'Fiqih', 'Hadits', 'Ushul Fiqh', 'Kajian Turats', 'Umum'];
 
   return (
-    <div className="h-full overflow-y-auto p-4 lg:p-6 space-y-6 animate-fade-in">
-      {/* Header */}
-      <div>
-        <h2 className="text-lg font-bold gradient-text mb-1">Panel Unggah Dokumen Kitab</h2>
-        <p className="text-sm text-slate-500">
-          Unggah file kitab (PDF/Word/TXT) untuk diindeks ke dalam sistem Knowledge Base RAG.
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: 'Total Dokumen', value: documents.length, icon: '📚', color: 'emerald' },
-          { label: 'Terindeks', value: indexedCount, icon: '✓', color: 'emerald' },
-          { label: 'Sedang Proses', value: indexingCount, icon: '⟳', color: 'amber' },
-        ].map((stat, idx) => (
-          <div key={idx} className="p-4 bg-white border border-emerald-100 rounded-xl shadow-sm card-hover">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-lg">{stat.icon}</span>
-              <span className="text-2xl font-bold text-slate-800">{stat.value}</span>
-            </div>
-            <p className="text-[11px] text-slate-500 font-medium">{stat.label}</p>
+    <div className="flex-1 overflow-y-auto bg-slate-50 p-6 lg:p-8">
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Header */}
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-xl font-bold text-slate-800">Panel Unggah Dokumen Kitab (Knowledge Base RAG)</h1>
+            <span className="px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
+              AI Vision Enabled
+            </span>
           </div>
-        ))}
-      </div>
-
-      {/* Upload Area */}
-      <div
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={handleFileDrop}
-        className={`
-          relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300
-          ${isDragging
-            ? 'border-emerald-400 bg-emerald-50/50 scale-[1.01]'
-            : 'border-slate-200 bg-white/50 hover:border-emerald-300 hover:bg-emerald-50/30'
-          }
-        `}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf,.doc,.docx,.txt"
-          multiple
-          className="hidden"
-          onChange={handleFileSelect}
-        />
-
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center mb-4">
-          <svg className="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-          </svg>
+          <p className="text-sm text-slate-500">
+            Unggah file kitab (PDF teks, PDF scan, atau Foto Lembar Kitab PNG/JPG) untuk diindeks ke dalam sistem Knowledge Base RAG.
+          </p>
         </div>
 
-        <p className="text-sm font-semibold text-slate-700 mb-1">
-          Seret & Lepas file kitab ke sini
-        </p>
-        <p className="text-xs text-slate-400 mb-4">
-          Atau klik tombol di bawah untuk memilih file
-        </p>
+        {/* Notifikasi Sukses / Error */}
+        {uploadSuccess && (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-sm flex items-center justify-between animate-fade-in">
+            <span className="flex items-center gap-2">
+              <span className="text-base">✓</span> {uploadSuccess}
+            </span>
+            <button onClick={() => setUploadSuccess(null)} className="text-emerald-500 hover:text-emerald-700">✕</button>
+          </div>
+        )}
+        {uploadError && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm flex items-center justify-between animate-fade-in">
+            <span className="flex items-center gap-2">
+              <span className="text-base">⚠</span> {uploadError}
+            </span>
+            <button onClick={() => setUploadError(null)} className="text-rose-500 hover:text-rose-700">✕</button>
+          </div>
+        )}
 
-        <button
-          id="btn-upload-file"
-          onClick={() => fileInputRef.current?.click()}
-          className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl
-                     font-semibold text-sm hover:from-emerald-700 hover:to-emerald-800
-                     shadow-lg shadow-emerald-200 transition-all btn-press inline-flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Pilih File
-        </button>
-
-        <p className="text-[10px] text-slate-400 mt-3">
-          Format: PDF, DOC, DOCX, TXT • Maks. 50 MB per file
-        </p>
-      </div>
-      {uploadError && (
-        <p role="alert" className="-mt-4 text-xs font-medium text-rose-700" aria-live="polite">
-          {uploadError}
-        </p>
-      )}
-
-      {/* Document List */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-slate-700">Dokumen Terindeks</h3>
-          <span className="text-[10px] text-slate-400">{documents.length} dokumen</span>
-        </div>
-
-        <div className="space-y-2">
-          {documents.map((doc) => (
-            <div
-              key={doc.id}
-              className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl
-                         hover:border-emerald-200 hover:shadow-sm transition-all duration-200 group"
-            >
-              <FileIcon type={doc.type} />
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-semibold text-slate-700 truncate">{doc.name}</p>
-                  <CategoryBadge category={doc.category} />
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-[11px] text-slate-400">{doc.size}</span>
-                  {doc.pages && <span className="text-[11px] text-slate-400">{doc.pages} hal.</span>}
-                  <span className="text-[11px] text-slate-400">{formatDate(doc.uploadedAt)}</span>
-                </div>
+        {/* Live Progress Bar untuk AI Vision */}
+        {visionProgress && (
+          <div className="p-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 border border-emerald-300 rounded-2xl shadow-sm space-y-3 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-ping" />
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-900">
+                  Transkripsi AI Vision Sedang Berjalan
+                </span>
               </div>
-
-              <StatusBadge status={doc.status} />
-
-              <button
-                onClick={() => removeDocument(doc.id)}
-                className="p-1.5 rounded-lg text-slate-300 hover:text-rose-500 hover:bg-rose-50 
-                           opacity-0 group-hover:opacity-100 transition-all duration-200"
-                title="Hapus dokumen"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                </svg>
-              </button>
+              <span className="text-xs font-semibold text-emerald-800">
+                {visionProgress.currentPage} / {visionProgress.totalPages} Halaman
+              </span>
             </div>
-          ))}
+            <div>
+              <p className="text-sm font-semibold text-slate-800 mb-1">{visionProgress.docName}</p>
+              <p className="text-xs text-emerald-700">{visionProgress.stage}</p>
+            </div>
+            <div className="w-full bg-emerald-200/60 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-emerald-600 h-2 rounded-full transition-all duration-300 ease-out"
+                style={{
+                  width: `${Math.min(100, (visionProgress.currentPage / Math.max(1, visionProgress.totalPages)) * 100)}%`,
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Statistik */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Dokumen</p>
+            <p className="text-2xl font-bold text-slate-800 mt-1">{documents.length}</p>
+          </div>
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Terindeks</p>
+            <p className="text-2xl font-bold text-emerald-700 mt-1">
+              {documents.filter(d => d.status === 'indexed').length}
+            </p>
+          </div>
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wider text-amber-700">Sedang Proses</p>
+            <p className="text-2xl font-bold text-amber-700 mt-1">
+              {isUploading ? documents.filter(d => d.status === 'indexing').length : 0}
+            </p>
+          </div>
+        </div>
+
+        {/* Dropzone Upload */}
+        <div
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleFileDrop}
+          className={`border-2 border-dashed rounded-3xl p-8 text-center transition-all duration-200 ${
+            isDragging
+              ? 'border-emerald-500 bg-emerald-50/50 scale-[1.01]'
+              : 'border-slate-200 bg-white/70 hover:border-slate-300'
+          }`}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.txt"
+            multiple
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+          <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-4 text-emerald-700 shadow-sm">
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+          </div>
+          <h3 className="text-base font-semibold text-slate-800 mb-1">
+            Seret & Lepas file kitab ke sini
+          </h3>
+          <p className="text-xs text-slate-500 mb-4">
+            Mendukung file PDF (teks/scan), Foto Lembar Kitab (JPG/PNG), hingga 100 lembar per file (Maks. 50 MB).
+          </p>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+          >
+            {isUploading ? 'Sedang Memproses...' : '+ Pilih File Kitab'}
+          </button>
+        </div>
+
+        {/* Filter & Daftar Dokumen */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+            <h2 className="text-sm font-bold text-slate-800">Dokumen Terindeks</h2>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                    selectedCategory === cat
+                      ? 'bg-emerald-700 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Cari dokumen kitab..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            />
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {filteredDocs.length === 0 ? (
+              <p className="text-center py-8 text-xs text-slate-400">
+                Belum ada dokumen yang sesuai. Silakan unggah file kitab di atas.
+              </p>
+            ) : (
+              filteredDocs.map(doc => (
+                <div key={doc.id} className="py-3.5 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <FileIcon type={doc.type} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 truncate">{doc.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[11px] text-slate-400">{doc.size}</span>
+                        <span className="text-[11px] text-slate-300">•</span>
+                        <span className="text-[11px] text-slate-400">{formatDate(new Date(doc.uploadedAt))}</span>
+                        <CategoryBadge category={doc.category} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <StatusBadge status={doc.status} />
+                    <button
+                      onClick={() => removeDocument(doc.id, doc.name)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                      title="Hapus Dokumen"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>

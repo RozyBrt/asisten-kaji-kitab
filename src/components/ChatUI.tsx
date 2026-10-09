@@ -104,9 +104,9 @@ function ChatBubble({ message }: { message: ChatMessage }) {
       const opt = {
         margin: 0.4,
         filename: 'Hasil-Kajian-' + message.id.substring(0, 6) + '.pdf',
-        image: { type: 'jpeg', quality: 1 },
+        image: { type: 'jpeg' as const, quality: 1 },
         html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        jsPDF: { unit: 'in' as const, format: 'a4', orientation: 'portrait' as const }
       };
       html2pdf.default().set(opt).from(htmlContent).save();
     }).catch(err => console.error('Error loading html2pdf:', err));

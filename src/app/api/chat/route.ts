@@ -1,4 +1,4 @@
-﻿// API Route Handler: /api/chat
+// API Route Handler: /api/chat
 // Mendukung SumoPod (OpenAI-compatible) & Google Gemini API
 // Mendukung payload teks + gambar (Base64) Multimodal Vision
 // Otomatis fallback ke mock data jika API Key belum diisi
@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAiProviderStatus, getGeminiApiKey, getSumopodApiKey, type AiProviderMode } from '@/lib/ai-provider';
 import { getMockChatResponse } from '@/lib/mock-data';
 import { ChatApiRequest, ChatApiResponse } from '@/lib/types';
+import { similaritySearch, listDocuments } from '@/lib/vectorStore';
 
 const SYSTEM_PROMPT = "Anda adalah Asisten AI Kaji Kitab & Turats, asisten kecerdasan buatan akademis-islami yang membantu mengkaji kitab-kitab turats (klasik Islam) dan hafalan.\n\n" +
   "Tugas dan Aturan:\n" +
@@ -44,10 +45,36 @@ export async function POST(request: NextRequest) {
     const sumopodApiKey = getSumopodApiKey();
     const geminiApiKey = getGeminiApiKey();
 
+    // Dapatkan daftar dokumen yang sudah diunggah ke Knowledge Base
+    let uploadedDocsInfo = "Daftar dokumen di Knowledge Base saat ini: Kosong.";
+    try {
+      const docs = listDocuments();
+      if (docs.length > 0) {
+        uploadedDocsInfo = "Daftar dokumen di Knowledge Base saat ini: " + docs.map(d => `"${d.docName}" (${d.chunkCount} chunk)`).join(', ') + ".";
+      }
+    } catch (e) {
+      console.error("Gagal meload daftar dokumen", e);
+    }
+
+    // Ambil konteks relevan dari Knowledge Base RAG (jika ada)
+    let ragContext = '\n\n=== INFORMASI KNOWLEDGE BASE ===\n' + uploadedDocsInfo + '\n';
+    if (message && message.trim().length > 3) {
+      try {
+        const ragChunks = await similaritySearch(message, 4);
+        if (ragChunks.length > 0) {
+          ragContext += '\n=== KONTEKS DARI KITAB YANG TELAH DIUPLOAD (GUNAKAN INI SEBAGAI RUJUKAN UTAMA JIKA RELEVAN) ===\n' +
+            ragChunks.join('\n\n---\n\n') +
+            '\n=== AKHIR KONTEKS KITAB ===\n';
+        }
+      } catch {
+        // Jika RAG gagal, tetap lanjut
+      }
+    }
+
     // 1. Prioritaskan SumoPod jika API Key SumoPod tersedia
     if (sumopodApiKey) {
       try {
-        const response = await callSumoPodApi(sumopodApiKey, message, image, conversationHistory);
+        const response = await callSumoPodApi(sumopodApiKey, message, image, conversationHistory, ragContext);
         return withProviderStatus(response, 'sumopod');
       } catch (sumoError) {
         console.error('SumoPod API error, mencoba fallback:', sumoError);
@@ -57,7 +84,7 @@ export async function POST(request: NextRequest) {
     // 2. Gunakan Google Gemini jika GEMINI_API_KEY tersedia
     if (geminiApiKey && geminiApiKey.trim() !== '') {
       try {
-        const response = await callGeminiApi(geminiApiKey, message, image, conversationHistory);
+        const response = await callGeminiApi(geminiApiKey, message, image, conversationHistory, ragContext);
         return withProviderStatus(response, 'gemini');
       } catch (geminiError) {
         console.error('Gemini API error, mencoba fallback:', geminiError);
@@ -92,7 +119,8 @@ async function callSumoPodApi(
   apiKey: string,
   message: string,
   image?: string,
-  conversationHistory?: { role: string; content: string }[]
+  conversationHistory?: { role: string; content: string }[],
+  ragContext = ''
 ): Promise<ChatApiResponse> {
   const rawBaseUrl = process.env.SUMOPOD_BASE_URL || 'https://ai.sumopod.com';
   let endpoint = rawBaseUrl.replace(/\/+$/, '');
@@ -124,9 +152,12 @@ async function callSumoPodApi(
       ]
     });
   } else {
+    const enrichedMessage = ragContext
+      ? (ragContext + '\n\nPertanyaan pengguna: ' + (message || 'Mohon penjelasan materi kitab turats terkait.'))
+      : (message || 'Mohon penjelasan materi kitab turats terkait.');
     messages.push({
       role: 'user',
-      content: message || 'Mohon penjelasan materi kitab turats terkait.'
+      content: enrichedMessage
     });
   }
 
@@ -175,7 +206,8 @@ async function callGeminiApi(
   apiKey: string,
   message: string,
   image?: string,
-  conversationHistory?: { role: string; content: string }[]
+  conversationHistory?: { role: string; content: string }[],
+  ragContext = ''
 ): Promise<ChatApiResponse> {
   const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
 
@@ -187,7 +219,10 @@ async function callGeminiApi(
     parts.push({ text: `Konteks percakapan sebelumnya:\n${contextText}\n\n` });
   }
 
-  parts.push({ text: message || 'Tolong analisis dan transkripsi gambar halaman kitab ini.' });
+  const enrichedGemMessage = ragContext
+    ? (ragContext + '\n\nPertanyaan pengguna: ' + (message || 'Tolong analisis dan transkripsi gambar halaman kitab ini.'))
+    : (message || 'Tolong analisis dan transkripsi gambar halaman kitab ini.');
+  parts.push({ text: enrichedGemMessage });
 
   if (image) {
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');

@@ -81,3 +81,11 @@ export interface ChatApiResponse {
 }
 
 export type ActiveModule = 'kaji-kitab' | 'hafalan' | 'upload';
+
+// ─── RAG Types ───────────────────────────────────────────────────────────────
+export interface RagDocument {
+  docId: string;
+  name: string;
+  uploadedAt: string;
+  nChunks: number;
+}
