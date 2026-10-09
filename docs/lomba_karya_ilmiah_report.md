@@ -94,3 +94,4 @@ Untuk menghubungkan ke API Google Gemini secara langsung:
    GEMINI_API_KEY=AIzaSy...
    ```
 3. Backend route `app/api/chat/route.ts` otomatis memanggil model `gemini-2.0-flash` dengan konfigurasi multimodal teks dan gambar.
+
