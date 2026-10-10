@@ -90,6 +90,13 @@ const loadPdfJs = async () => {
   });
 };
 
+const PROTECTED_DOC_IDS = ['safinatun-najah', 'fathul-qarib', 'talimul-mutaallim'];
+
+function isProtectedDoc(id: string): boolean {
+  if (!id) return false;
+  return PROTECTED_DOC_IDS.some(p => id === p || id.startsWith(p + '-'));
+}
+
 export default function UploadUI() {
   const [documents, setDocuments] = useState<UploadedDocument[]>([]);
   const [isDragging, setIsDragging] = useState(false);
