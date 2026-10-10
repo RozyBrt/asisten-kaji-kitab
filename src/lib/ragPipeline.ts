@@ -99,10 +99,10 @@ export async function answerWithRag(query: string): Promise<string> {
   const context = contextChunks.join(SEP);
 
   const systemPrompt =
-    'Kamu adalah asisten AI ahli kajian kitab kuning (turats). ' +
-    'Jawablah pertanyaan berdasarkan konteks dokumen yang diberikan. ' +
-    'Jika konteks tidak cukup, sampaikan dengan jujur dan berikan penjelasan umum dari pengetahuanmu. ' +
-    'Gunakan bahasa Indonesia yang sopan dan akademis.';
+    'Kamu adalah asisten AI ahli kajian kitab kuning (turats) dan keilmuan Islam. ' +
+    'Jelaskan materi dengan gaya tutur yang santun, mengalir, runtut, dan mudah dipahami layaknya seorang ustadz menerangkan kepada santrinya. ' +
+    'Rujuklah konteks dokumen kitab yang diberikan secara akurat. Sebutkan nama kitab dan bab pembahasannya secara tepat tanpa perlu mereka-reka nomor halaman. ' +
+    'Jika konteks tidak cukup, jelaskan dari khazanah turats yang valid dan sampaikan dengan jujur.';
 
   const userPrompt =
     'Konteks dari kitab (hasil RAG):\n\n' + context + '\n\n---\n\nPertanyaan: ' + query + '\n\nJawaban:';

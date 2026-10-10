@@ -18,7 +18,7 @@ export interface ChatMessage {
 export interface KitabSource {
   kitabName: string;
   bab: string;
-  halaman: string;
+  halaman?: string;
   snippet?: string;
 }
 

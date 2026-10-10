@@ -26,7 +26,9 @@ function SourceCard({ source }: { source: KitabSource }) {
       <div className="min-w-0">
         <p className="text-xs font-bold text-emerald-800 truncate">{source.kitabName}</p>
         <p className="text-[11px] text-emerald-600">{source.bab}</p>
+        {source.halaman && source.halaman !== '-' && source.halaman !== 'Estimasi' && (
         <p className="text-[10px] text-slate-500 mt-0.5">Hal. {source.halaman}</p>
+      )}
       </div>
     </div>
   );
@@ -59,7 +61,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 
   const handleCopy = () => {
     const textToCopy = `${message.content}\n\n${message.arabicText ? `[Matan Arab]: ${message.arabicText}\n` : ''}${
-      message.sources ? `[Rujukan]: ` + message.sources.map(s => `${s.kitabName} (${s.bab}, hal. ${s.halaman})`).join(', ') : ''
+      message.sources ? `[Rujukan]: ` + message.sources.map(s => `${s.kitabName} (${s.bab}${s.halaman && s.halaman !== '-' ? `, Hal. ${s.halaman}` : ''})`).join(', ') : ''
     }`;
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
@@ -90,7 +92,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
           <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
             <strong style="color: #047857; font-size: 12px;">SUMBER RUJUKAN KITAB:</strong>
             <ul style="margin-top: 10px; font-size: 13px;">
-              ${message.sources.map(s => `<li style="margin-bottom: 5px;"><strong>${s.kitabName}</strong> &mdash; ${s.bab}, Halaman ${s.halaman}</li>`).join('')}
+              ${message.sources.map(s => `<li style="margin-bottom: 5px;"><strong>${s.kitabName}</strong> &mdash; ${s.bab}${s.halaman && s.halaman !== '-' ? `, Halaman ${s.halaman}` : ''}</li>`).join('')}
             </ul>
           </div>
         ` : ''}

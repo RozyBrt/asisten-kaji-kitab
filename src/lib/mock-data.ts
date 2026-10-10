@@ -11,26 +11,25 @@ const mockTextResponses: Record<string, ChatApiResponse> = {
     reply: `**Syarat Sah Wudhu** menurut mayoritas ulama ada 6 perkara:\n\n1. **Islam** — Wudhu tidak sah dari orang kafir.\n2. **Tamyiz** — Mampu membedakan baik dan buruk (mumayyiz).\n3. **Suci dari haid dan nifas** — Bagi wanita.\n4. **Menggunakan air suci dan menyucikan** (thahur) — Air yang belum berubah sifatnya.\n5. **Tidak ada penghalang** sampainya air ke kulit — Seperti cat kuku, lilin, dll.\n6. **Telah masuk waktu** bagi yang berhadas terus-menerus.\n\nDalil utama terdapat dalam **QS. Al-Ma'idah [5]: 6** yang menjelaskan tata cara wudhu secara lengkap.`,
     arabicText: `يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا قُمْتُمْ إِلَى الصَّلَاةِ فَاغْسِلُوا وُجُوهَكُمْ وَأَيْدِيَكُمْ إِلَى الْمَرَافِقِ وَامْسَحُوا بِرُءُوسِكُمْ وَأَرْجُلَكُمْ إِلَى الْكَعْبَيْنِ`,
     sources: [
-      { kitabName: 'Fathul Qarib', bab: 'Bab Wudhu', halaman: '12-14' },
-      { kitabName: 'Safinatun Najah', bab: 'Syarat Wudhu', halaman: '8' },
-      { kitabName: 'Fiqhus Sunnah', bab: 'Kitab Thaharah', halaman: '33-35' },
+      { kitabName: 'Safinatun Najah (karya Syaikh Salim bin Sumair)', bab: 'Fashl Syuruthul Wudhu' },
+      { kitabName: 'Fathul Qarib al-Mujib (karya Ibnu Qasim al-Ghazi)', bab: 'Bab Thaharah - Fashl Syuruthush Shalah wal Wudhu' },
     ],
   },
   'adab menuntut ilmu': {
     reply: `**Adab Menuntut Ilmu** yang diajarkan para ulama salaf:\n\n1. **Niat ikhlas karena Allah** — Bukan untuk riya' atau mencari kedudukan.\n2. **Memuliakan guru** — Berdiri saat guru datang, tidak mendahuluinya, dan memperhatikan penjelasannya.\n3. **Sabar dan tekun** — Ilmu tidak didapat dalam satu malam.\n4. **Mengamalkan ilmu** — Ilmu tanpa amal bagaikan pohon tanpa buah.\n5. **Tawadhu' (rendah hati)** — Tidak sombong dengan ilmu yang dimiliki.\n6. **Menjaga waktu** — Memanfaatkan waktu sebaik-baiknya untuk belajar.\n7. **Mengulang-ulang pelajaran** (muraja'ah) — Agar ilmu tertancap kuat.\n\nImam Syafi'i rahimahullah berkata:\n*"Ilmu itu bukan yang dihafal, tapi yang memberi manfaat."*`,
     arabicText: `قَالَ الإِمَامُ الشَّافِعِيُّ رَحِمَهُ اللَّهُ: لَيْسَ العِلْمُ مَا حُفِظَ، العِلْمُ مَا نَفَعَ`,
     sources: [
-      { kitabName: "Ta'limul Muta'allim", bab: "Bab Adab Thalib 'Ilm", halaman: '5-9' },
-      { kitabName: 'Ihya Ulumiddin', bab: "Kitab Al-'Ilm", halaman: '45-48' },
+      { kitabName: "Ta'limul Muta'allim (karya Syaikh Az-Zarnuji)", bab: "Fashl fi Niyyati fi Hali at-Ta'allum" },
+      { kitabName: "Ihya' Ulumiddin (karya Hujjatul Islam Imam Al-Ghazali)", bab: "Kitab Al-'Ilm - Bab Adab al-Muta'allim wal Mu'allim" },
     ],
   },
   'rukun shalat': {
     reply: `**Rukun Shalat** yang wajib dipenuhi ada **13 rukun** menurut mazhab Syafi'i:\n\n1. **Niat** di dalam hati bersamaan dengan takbiratul ihram.\n2. **Berdiri** bagi yang mampu (dalam shalat fardhu).\n3. **Takbiratul Ihram** — mengucapkan "Allahu Akbar".\n4. **Membaca Al-Fatihah** di setiap rakaat.\n5. **Ruku'** dengan thuma'ninah.\n6. **I'tidal** (bangkit dari ruku') dengan thuma'ninah.\n7. **Sujud dua kali** di setiap rakaat dengan thuma'ninah.\n8. **Duduk di antara dua sujud** dengan thuma'ninah.\n9. **Tasyahud akhir** (membaca tahiyyat).\n10. **Duduk saat tasyahud akhir**.\n11. **Membaca shalawat Nabi ﷺ** dalam tasyahud akhir.\n12. **Salam pertama** (Assalamu'alaikum warahmatullah).\n13. **Tertib** — melaksanakan rukun secara berurutan.\n\nMeninggalkan salah satu rukun menyebabkan shalat batal, baik sengaja maupun lupa.`,
     arabicText: `أَرْكَانُ الصَّلَاةِ ثَلَاثَةَ عَشَرَ: النِّيَّةُ وَالْقِيَامُ وَتَكْبِيرَةُ الْإِحْرَامِ`,
     sources: [
-      { kitabName: 'Fathul Qarib', bab: 'Bab Arkanish Shalah', halaman: '22-25' },
-      { kitabName: 'Safinatun Najah', bab: 'Bab Shalat', halaman: '14-15' },
-      { kitabName: 'Minhajut Thalibin', bab: 'Kitab Shalat', halaman: '56' },
+      { kitabName: 'Safinatun Najah (karya Syaikh Salim bin Sumair)', bab: 'Fashl Arkanush Shalah' },
+      { kitabName: 'Fathul Qarib al-Mujib (karya Ibnu Qasim al-Ghazi)', bab: 'Fashl fi Bayani Arkanish Shalah' },
+      { kitabName: 'Minhajuth Thalibin (karya Imam An-Nawawi)', bab: 'Kitabush Shalah - Fasl Shifatush Shalah' },
     ],
   },
 };
@@ -48,8 +47,8 @@ const mockOcrResponse: ChatApiResponse = {
   reply: `**Hasil Analisis Halaman Kitab (OCR + AI):**\n\nGambar yang Anda unggah terdeteksi sebagai halaman dari kitab fiqih klasik. Berikut hasil transkripsi dan penjelasannya:\n\n**Ringkasan Isi:**\nHalaman ini membahas tentang bab thaharah (bersuci), khususnya mengenai syarat-syarat dan tata cara wudhu menurut pendapat mazhab Syafi'i. Teks matan menyebutkan bahwa wudhu memiliki enam fardhu (rukun) yang wajib dipenuhi.\n\n**Penjelasan (Syarah):**\n- Fardhu pertama adalah **niat** yang tempatnya di hati, bersamaan dengan membasuh wajah.\n- Fardhu kedua adalah **membasuh wajah** dari batas tumbuhnya rambut hingga bawah dagu, dan dari telinga ke telinga.\n- Fardhu ketiga adalah **membasuh kedua tangan hingga siku**.\n\n*Catatan: Hasil OCR ini merupakan mock/simulasi. Integrasikan Google Gemini Vision API untuk analisis gambar yang sesungguhnya.*`,
   arabicText: `فُرُوضُ الوُضُوءِ سِتَّةٌ: النِّيَّةُ عِنْدَ غَسْلِ الوَجْهِ، وَغَسْلُ الوَجْهِ، وَغَسْلُ اليَدَيْنِ مَعَ المِرْفَقَيْنِ، وَمَسْحُ بَعْضِ الرَّأْسِ، وَغَسْلُ الرِّجْلَيْنِ مَعَ الكَعْبَيْنِ، وَالتَّرْتِيبُ`,
   sources: [
-    { kitabName: 'Fathul Qarib al-Mujib', bab: 'Bab Fardhu Wudhu', halaman: '10-11' },
-    { kitabName: 'Safinatun Najah', bab: 'Fasal fi Furu\'dhil Wudhu\'', halaman: '7' },
+    { kitabName: 'Fathul Qarib al-Mujib (karya Ibnu Qasim al-Ghazi)', bab: 'Bab Thaharah - Fashl Furudhul Wudhu' },
+    { kitabName: 'Safinatun Najah (karya Syaikh Salim bin Sumair)', bab: 'Fashl Furudhul Wudhu Sittah' },
   ],
   isOcr: true,
 };
