@@ -124,12 +124,20 @@ export async function GET() {
   }
 }
 
+const PROTECTED_DOC_IDS = ['safinatun-najah', 'fathul-qarib', 'talimul-mutaallim'];
+
 // DELETE: Hapus dokumen
 export async function DELETE(request: NextRequest) {
   try {
     const { docId } = await request.json();
     if (!docId) {
       return Response.json({ error: 'Harus mengirim "docId".' }, { status: 400 });
+    }
+    if (PROTECTED_DOC_IDS.some(p => docId === p || docId.startsWith(p + '-'))) {
+      return Response.json(
+        { error: 'Dokumen ini adalah Kitab Kurikulum Inti Pesantren yang dilindungi dan tidak dapat dihapus.' },
+        { status: 403 }
+      );
     }
     deleteDocument(docId);
     return Response.json({ success: true, message: `Dokumen "${docId}" dihapus dari index.` });

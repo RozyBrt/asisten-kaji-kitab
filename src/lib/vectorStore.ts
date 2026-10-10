@@ -106,7 +106,17 @@ export async function similaritySearch(query: string, k = 4): Promise<string[]> 
 }
 
 /** Hapus semua entri yang berasal dari dokumen tertentu */
+const PROTECTED_DOC_IDS = ['safinatun-najah', 'fathul-qarib', 'talimul-mutaallim'];
+
+export function isProtectedDocument(docId: string): boolean {
+  return PROTECTED_DOC_IDS.some(p => docId === p || docId.startsWith(p + '-'));
+}
+
 export function deleteDocument(docId: string) {
+  if (isProtectedDocument(docId)) {
+    console.warn(`[Security] Percobaan menghapus kitab kurikulum inti ditolak: ${docId}`);
+    return;
+  }
   const store = loadStore().filter((e) => {
     // Cek dari metadata jika ada (lebih akurat)
     if (e.metadata?.docId) return e.metadata.docId !== docId;
