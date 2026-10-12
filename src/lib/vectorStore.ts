@@ -106,7 +106,7 @@ export async function similaritySearch(query: string, k = 4): Promise<string[]> 
 }
 
 /** Hapus semua entri yang berasal dari dokumen tertentu */
-const PROTECTED_DOC_IDS = ['safinatun-najah', 'fathul-qarib', 'talimul-mutaallim'];
+const PROTECTED_DOC_IDS = ['safinatun-najah', 'fathul-qarib', 'talimul-mutaallim', 'al-kawakib-ad-durriyyah'];
 
 export function isProtectedDocument(docId: string): boolean {
   return PROTECTED_DOC_IDS.some(p => docId === p || docId.startsWith(p + '-'));

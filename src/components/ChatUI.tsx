@@ -269,6 +269,7 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showOcrDevModal, setShowOcrDevModal] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -439,24 +440,25 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
             </p>
 
             {/* Showcase 1-Click OCR Demo Button */}
-            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 via-emerald-100/40 to-emerald-50 border border-emerald-200 shadow-sm max-w-lg w-full">
+            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-50/60 via-emerald-50/40 to-slate-50 border border-amber-200/80 shadow-sm max-w-lg w-full">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
-                  <span>✨</span> Fitur Unggulan Multimodal OCR
+                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <span>📷</span> Fitur Multimodal OCR Naskah Kitab
                 </span>
-                <span className="text-[10px] bg-emerald-600 text-white font-semibold px-2 py-0.5 rounded-full">
-                  Demo 1-Klik
+                <span className="text-[10px] bg-amber-500 text-white font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  Dalam Pengembangan
                 </span>
               </div>
               <p className="text-xs text-slate-600 mb-3 text-left leading-normal">
-                Uji langsung kemampuan AI membaca foto fisik naskah kitab kuning (Matan Furu&apos;dhul Wudhu&apos;) dan menghasilkan syarah terstruktur beserta sitasi.
+                Modul pembacaan foto fisik naskah kitab kuning (Vision AI) untuk ekstraksi teks Arab &amp; syarah terstruktur (Tahap Riset Lanjutan).
               </p>
               <button
                 id="btn-demo-multimodal"
-                onClick={() => sendMessage('Tolong transkripsi dan jelaskan isi halaman kitab ini.', SAMPLE_KITAB_IMAGE)}
-                className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 btn-press"
+                onClick={() => setShowOcrDevModal(true)}
+                className="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 btn-press"
               >
-                <span>📷</span> Uji Analisis Foto Kitab (Demo Multimodal)
+                <span>🔍</span> Pratinjau Analisis Foto Kitab (Dalam Pengembangan)
               </button>
             </div>
 
@@ -526,9 +528,9 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
           {/* Attachment Button */}
           <button
             id="btn-attach-image"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => setShowOcrDevModal(true)}
             className="p-2.5 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200 btn-press flex-shrink-0"
-            title="Unggah foto lembar kitab"
+            title="Unggah foto lembar kitab (Tahap Pengembangan)"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
@@ -538,9 +540,9 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
 
           {/* Quick Load Sample Kitab Button */}
           <button
-            onClick={loadSampleImage}
-            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors btn-press flex-shrink-0"
-            title="Gunakan sampel naskah untuk demonstrasi"
+            onClick={() => setShowOcrDevModal(true)}
+            className="hidden sm:inline-flex items-center gap-1 px-2.5 py-2 text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/60 rounded-xl transition-colors btn-press flex-shrink-0"
+            title="Pratinjau naskah foto OCR (Tahap Pengembangan)"
           >
             <span>📜</span> Sampel Naskah
           </button>
@@ -562,7 +564,7 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Tanyakan materi fikih, hadits, atau kirim foto kitab..."
+              placeholder="Tanyakan materi fikih, hadits, nahwu, atau ketik pertanyaan kitab..."
               rows={1}
               className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl
                          text-sm text-slate-700 placeholder-slate-400
@@ -605,8 +607,82 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
           </div>
         )}
       </div>
+    
+      {/* Modal Dialog: Fitur Multimodal OCR Dalam Pengembangan */}
+      {showOcrDevModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+          onClick={() => setShowOcrDevModal(false)}
+        >
+          <div
+            className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-emerald-100 p-6 overflow-hidden animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top decorative accent */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-emerald-500 to-teal-500" />
+
+            {/* Close Button */}
+            <button
+              onClick={() => setShowOcrDevModal(false)}
+              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              title="Tutup"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Icon & Badge */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl shadow-sm text-amber-700">
+                📷
+              </div>
+              <div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Tahap Riset & Pengembangan
+                </span>
+                <h3 className="text-base font-bold text-slate-900 mt-1">
+                  Fitur Multimodal OCR Naskah
+                </h3>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
+              <p>
+                Fitur pemindaian foto fisik naskah kitab kuning dan ekstraksi teks Arab (Vision OCR) saat ini <strong>masih dalam tahap pengembangan dan riset lanjutan</strong>.
+              </p>
+              <p>
+                Modul ini dirancang untuk integrasi model <em>Computer Vision</em> khusus manuskrip Arab klasik (fine-tuned vision model) dan memerlukan konfigurasi Vision API khusus yang belum diaktifkan pada prototipe sesi ini.
+              </p>
+
+              {/* Recommendation Callout */}
+              <div className="p-3.5 bg-emerald-50/80 border border-emerald-200 rounded-xl text-emerald-950">
+                <div className="flex items-center gap-1.5 font-bold text-xs text-emerald-900 mb-1">
+                  <span>💡</span> Rekomendasi Pengujian Saat Ini
+                </div>
+                <p className="text-[11px] leading-normal text-emerald-800">
+                  Silakan gunakan fitur utama <strong>Kaji Kitab &amp; Temu Kembali Korpus Turats (RAG)</strong> melalui pengetikan teks pertanyaan atau memilih topik fikih, nahwu, dan akhlaq yang tersedia untuk meninjau dalil dan sitasi sanad.
+                </p>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <div className="mt-6 flex justify-end">
+              <button
+                id="btn-close-ocr-modal"
+                onClick={() => setShowOcrDevModal(false)}
+                className="w-full py-2.5 px-4 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-200 transition-all btn-press"
+              >
+                Saya Mengerti, Kembali ke Kaji Kitab
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-

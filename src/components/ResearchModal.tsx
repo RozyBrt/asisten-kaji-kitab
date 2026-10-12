@@ -24,7 +24,7 @@ export default function ResearchModal({ isOpen, onClose }: ResearchModalProps) {
                 Arsitektur Sistem & Kajian Ilmiah
               </h3>
               <p className="text-xs text-emerald-700 font-medium">
-                Prototype Lomba Karya Ilmiah: Bot AI Pembantu Kaji Kitab & Turats
+                Prototipe Lomba Karya Ilmiah: Asisten AI Kaji Kitab Turats & Penelusuran Sanad
               </p>
             </div>
           </div>
@@ -45,7 +45,7 @@ export default function ResearchModal({ isOpen, onClose }: ResearchModalProps) {
               1. Latar Belakang & Urgensi
             </h4>
             <p>
-              Kitab Turats (literatur klasik Islam/kitab kuning) memuat khazanah keilmuan yang kaya namun memiliki tantangan aksesibilitas bagi santri pemula dan generasi digital, seperti format aksara Arab gundul tanpa harakat, istilah fikih spesifik, serta kesulitan penelusuran rujukan silang (cross-referencing) secara cepat. Prototipe ini menjembatani tantangan tersebut menggunakan kecerdasan buatan multimodal etis.
+              Kitab Turats (literatur klasik Islam/kitab kuning) memuat khazanah keilmuan yang kaya namun memiliki tantangan aksesibilitas bagi santri pemula dan generasi digital, seperti format aksara Arab gundul tanpa harakat, ragam dialektika gramatika (nahwu-sharaf), istilah fikih spesifik, serta kesulitan penelusuran rujukan silang (<em>cross-referencing</em>) antarkitab secara cepat. Prototipe ini menjembatani tantangan tersebut menggunakan arsitektur kecerdasan buatan berbasis penelusuran korpus terpercaya (RAG etis).
             </p>
           </section>
 
@@ -57,21 +57,24 @@ export default function ResearchModal({ isOpen, onClose }: ResearchModalProps) {
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-3">
               <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                <span className="text-base font-bold text-emerald-700 block mb-1">① Vision OCR</span>
+                <span className="text-base font-bold text-emerald-700 block mb-1">① Hybrid RAG</span>
                 <p className="text-[11px] text-slate-600">
-                  Transkripsi visual otomatis teks Arab/matan dari foto lembar fisik kitab klasik via Gemini Multimodal.
+                  Temu kembali semantik vektor (OpenAI/text-embedding) & pencocokan istilah pada 4 korpus inti: <em>Matan Al-Jurumiyyah</em>, <em>Fathul Qarib</em>, <em>Ta&apos;lim Muta&apos;allim</em>, dan <em>Al-Kawakib Ad-Durriyyah</em>.
                 </p>
               </div>
               <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                <span className="text-base font-bold text-emerald-700 block mb-1">② Hybrid RAG</span>
+                <span className="text-base font-bold text-emerald-700 block mb-1">② Grounded AI & Sanad</span>
                 <p className="text-[11px] text-slate-600">
-                  Pencarian semantik & leksikal pada korpus kitab terindeks (Fathul Qarib, Safinatun Najah, dll).
+                  Penulisan syarah dan sintesis materi yang terhubung langsung dengan sitasi teks matan Arab, nama kitab, bab, dan fasal rujukan otentik.
                 </p>
               </div>
-              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                <span className="text-base font-bold text-emerald-700 block mb-1">③ Grounded AI</span>
+              <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/80">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-base font-bold text-amber-800">③ Vision OCR</span>
+                  <span className="text-[9px] bg-amber-200 text-amber-900 font-bold px-1.5 py-0.5 rounded">Riset Lanjutan</span>
+                </div>
                 <p className="text-[11px] text-slate-600">
-                  Penulisan syarah dan sintesis jawaban yang terhubung langsung dengan sitasi nama kitab, bab, dan halaman.
+                  Modul eksperimental pembacaan citra naskah fisik kitab kuning (Computer Vision Arab klasik) yang disiapkan pada roadmap pengembangan berikutnya.
                 </p>
               </div>
             </div>

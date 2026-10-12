@@ -90,7 +90,7 @@ const loadPdfJs = async () => {
   });
 };
 
-const PROTECTED_DOC_IDS = ['safinatun-najah', 'fathul-qarib', 'talimul-mutaallim'];
+const PROTECTED_DOC_IDS = ['safinatun-najah', 'fathul-qarib', 'talimul-mutaallim', 'al-kawakib-ad-durriyyah'];
 
 function isProtectedDoc(id: string): boolean {
   if (!id) return false;
@@ -125,15 +125,20 @@ export default function UploadUI() {
           const name = doc.docName || doc.docId.replace(/^\d+-/, '');
           const ext = name.split('.').pop()?.toLowerCase() || 'pdf';
           const type: 'pdf' | 'word' | 'txt' = ['png', 'jpg', 'jpeg', 'webp'].includes(ext) ? 'pdf' : (ext === 'pdf' ? 'pdf' : (ext === 'docx' || ext === 'doc' ? 'word' : 'txt'));
+          let cat = 'Kajian Turats';
+          if (doc.docId.includes('fathul') || doc.docId.includes('safinatun')) cat = 'Fiqih';
+          else if (doc.docId.includes('talim')) cat = 'Akhlaq';
+          else if (doc.docId.includes('kawakib') || doc.docId.includes('jurumiyyah')) cat = 'Gramatika Nahwu';
+
           return ({
-          id: doc.docId,
-          name: name,
-          type: type,
-          size: `${doc.chunkCount} chunk`,
-          uploadedAt: new Date(),
-          status: 'indexed' as const,
-          category: 'Umum',
-        });
+            id: doc.docId,
+            name: name,
+            type: type,
+            size: `${doc.chunkCount} chunk`,
+            uploadedAt: new Date(),
+            status: 'indexed' as const,
+            category: cat,
+          });
         });
         setDocuments(mapped);
       } else {
@@ -341,7 +346,7 @@ export default function UploadUI() {
     return matchSearch && matchCat;
   });
 
-  const categories = ['Semua', 'Fiqih', 'Hadits', 'Ushul Fiqh', 'Kajian Turats', 'Umum'];
+  const categories = ['Semua', 'Fiqih', 'Hadits', 'Gramatika Nahwu', 'Akhlaq', 'Kajian Turats'];
 
   return (
     <div className="flex-1 overflow-y-auto bg-slate-50 p-6 lg:p-8">
@@ -350,12 +355,13 @@ export default function UploadUI() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-xl font-bold text-slate-800">Panel Unggah Dokumen Kitab (Knowledge Base RAG)</h1>
-            <span className="px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
-              AI Vision Enabled
+            <span className="px-2.5 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 rounded-full border border-amber-200 inline-flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              Vision OCR (Riset Lanjutan)
             </span>
           </div>
           <p className="text-sm text-slate-500">
-            Unggah file kitab (PDF teks, PDF scan, atau Foto Lembar Kitab PNG/JPG) untuk diindeks ke dalam sistem Knowledge Base RAG.
+            Kelola dan telusuri korpus kitab turats terindeks (PDF teks / korpus kurikulum) ke dalam sistem Knowledge Base RAG.
           </p>
         </div>
 
@@ -454,7 +460,7 @@ export default function UploadUI() {
             Seret & Lepas file kitab ke sini
           </h3>
           <p className="text-xs text-slate-500 mb-4">
-            Mendukung file PDF (teks/scan), Foto Lembar Kitab (JPG/PNG), hingga 100 lembar per file (Maks. 50 MB).
+            Mendukung file naskah PDF teks atau dokumen digital hingga 100 halaman per file (Maks. 50 MB).
           </p>
           <button
             onClick={() => fileInputRef.current?.click()}

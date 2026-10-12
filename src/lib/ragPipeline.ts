@@ -108,8 +108,8 @@ export async function answerWithRag(query: string): Promise<string> {
     'Konteks dari kitab (hasil RAG):\n\n' + context + '\n\n---\n\nPertanyaan: ' + query + '\n\nJawaban:';
 
   const baseUrl = (process.env.SUMOPOD_BASE_URL || 'https://ai.sumopod.com/v1').trim();
-  const apiKey  = (process.env.SUMOPOD_API_KEY  || '').trim();
-  const model   = (process.env.SUMOPOD_MODEL    || 'gpt-4o-mini').trim();
+  const apiKey = (process.env.SUMOPOD_API_KEY || '').trim();
+  const model = (process.env.SUMOPOD_MODEL || 'gpt-4o-mini').trim();
 
   const response = await fetch(baseUrl + '/chat/completions', {
     method: 'POST',
