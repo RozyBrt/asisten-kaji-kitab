@@ -60,7 +60,6 @@ function TypingIndicator() {
 function ChatBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === 'user';
   const [copied, setCopied] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const handleCopy = () => {
     const textToCopy = `${message.content}\n\n${message.arabicText ? `[Matan Arab]: ${message.arabicText}\n` : ''}${
@@ -117,29 +116,6 @@ function ChatBubble({ message }: { message: ChatMessage }) {
       };
       html2pdf.default().set(opt).from(htmlContent).save();
     }).catch(err => console.error('Error loading html2pdf:', err));
-  };
-
-  const handleSpeakArabic = () => {
-    if (!message.arabicText || typeof window === 'undefined') return;
-
-    if ('speechSynthesis' in window) {
-      if (isSpeaking) {
-        window.speechSynthesis.cancel();
-        setIsSpeaking(false);
-        return;
-      }
-
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(message.arabicText);
-      utterance.lang = 'ar-SA';
-      utterance.rate = 0.85;
-
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-
-      setIsSpeaking(true);
-      window.speechSynthesis.speak(utterance);
-    }
   };
 
   return (
@@ -237,25 +213,13 @@ function ChatBubble({ message }: { message: ChatMessage }) {
         {/* Arabic text block */}
         {!isUser && message.arabicText && (
           <div className="verse-highlight bg-amber-50/40 border border-amber-200/80 rounded-xl p-3 sm:p-3.5">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5 text-emerald-800" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" />
-                </svg>
-                <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider">
-                  Matan Arab / Teks Nash
-                </span>
-              </div>
-              <button
-                onClick={handleSpeakArabic}
-                className="text-[10px] sm:text-[11px] px-2 py-0.5 rounded bg-white border border-emerald-200 text-emerald-800 hover:bg-emerald-50 transition-colors flex items-center gap-1 font-medium"
-                title="Dengarkan lafal teks Arab"
-              >
-                <svg className="w-3 h-3 text-emerald-700" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
-                </svg>
-                {isSpeaking ? 'Hentikan' : 'Lafalkan'}
-              </button>
+            <div className="flex items-center gap-1.5 mb-2">
+              <svg className="w-3.5 h-3.5 text-emerald-800" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" />
+              </svg>
+              <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider">
+                Matan Arab / Teks Nash
+              </span>
             </div>
             <p className="arabic-text text-slate-900 leading-loose text-right text-base sm:text-xl font-serif">
               {message.arabicText}
