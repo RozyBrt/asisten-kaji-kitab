@@ -2,21 +2,60 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Asisten AI Kaji Kitab & Turats — Prototype Lomba Karya Ilmiah",
+  metadataBase: new URL("https://asisten-kajian.online"),
+  title: "Asisten Kaji Kitab & Turats — Meja Telaah Turats & Penelusuran Sanad",
   description:
-    "Bot AI Pembantu Kaji Kitab (Turats) & Hafalan Al-Qur'an. Asisten cerdas berbasis AI untuk penelusuran materi kitab klasik Islam, transkripsi OCR halaman kitab, dan simulasi hafalan Al-Qur'an interaktif.",
+    "Platform cerdas telaah literatur turats, rujukan sanad & matan kitab kuning pesantren, serta muraja'ah hafalan santri interaktif.",
   keywords: [
     "AI",
     "kitab turats",
     "kaji kitab",
+    "kitab kuning",
     "hafalan Al-Quran",
     "fiqih Islam",
     "OCR kitab",
     "RAG",
+    "SumoPod",
     "Google Gemini",
-    "lomba karya ilmiah",
+    "pesantren",
+    "dayah",
+    "karya ilmiah",
   ],
-  authors: [{ name: "Tim Prototype Lomba Karya Ilmiah" }],
+  authors: [{ name: "Tim Asisten Kaji Kitab & Turats" }],
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/icon.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/icon.png",
+  },
+  openGraph: {
+    title: "Asisten Kaji Kitab & Turats — Meja Telaah Turats & Penelusuran Sanad",
+    description:
+      "Platform cerdas telaah literatur turats, rujukan sanad & matan kitab kuning pesantren, serta muraja'ah hafalan santri interaktif.",
+    url: "https://asisten-kajian.online",
+    siteName: "Asisten Kaji Kitab & Turats",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1280,
+        height: 720,
+        alt: "Asisten Kaji Kitab & Turats — Meja Telaah Turats & Penelusuran Sanad",
+      },
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Asisten Kaji Kitab & Turats",
+    description:
+      "Platform cerdas telaah literatur turats, rujukan sanad & matan kitab kuning pesantren, serta muraja'ah hafalan santri interaktif.",
+    images: ["/og-image.jpg"],
+  },
 };
 
 export default function RootLayout({
