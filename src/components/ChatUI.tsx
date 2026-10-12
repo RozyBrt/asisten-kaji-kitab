@@ -193,12 +193,12 @@ function ChatBubble({ message }: { message: ChatMessage }) {
               <button
                 onClick={handleDownloadPdf}
                 className="text-[10px] sm:text-[11px] text-slate-500 hover:text-emerald-800 transition-colors flex items-center gap-1 font-medium"
-                title="Unduh format PDF"
+                title="Unduh jawaban ini dalam format PDF"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.5V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
-                Unduh PDF
+                Unduh Jawaban Ini (PDF)
               </button>
             </div>
           )}
@@ -261,6 +261,7 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -389,22 +390,159 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
     setIsLoading(false);
   };
 
+  const handleDownloadFullChatPdf = async () => {
+    if (typeof window === 'undefined' || messages.length === 0 || isExportingPdf) return;
+
+    setIsExportingPdf(true);
+    try {
+      const html2pdfModule = await import('html2pdf.js');
+      const html2pdf = html2pdfModule.default || html2pdfModule;
+
+      const dateStr = new Date().toLocaleDateString('id-ID', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+      const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+      let chatItemsHtml = '';
+      let qNum = 1;
+
+      for (const m of messages) {
+        if (m.role === 'user') {
+          chatItemsHtml += `
+            <div style="margin-top: 18px; margin-bottom: 12px; padding: 12px 14px; background: #f8fafc; border-left: 4px solid #065f46; border-radius: 6px; page-break-inside: avoid;">
+              <div style="font-size: 11px; font-weight: bold; color: #065f46; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+                Pertanyaan Santri #${qNum++}
+              </div>
+              <div style="font-size: 13px; color: #1e293b; line-height: 1.5; font-weight: 500;">
+                ${m.content || '(Lampiran Gambar/Naskah Kitab)'}
+              </div>
+              ${m.image ? `
+                <div style="margin-top: 6px; font-size: 11px; color: #64748b; font-style: italic;">
+                  &#128247; [Disertai Lampiran Foto Naskah Fisik Kitab]
+                </div>
+              ` : ''}
+            </div>
+          `;
+        } else {
+          const formattedContent = m.content
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/\n/g, '<br/>')
+            .replace(/^(\d+)\.\s/gm, '<strong style="color: #065f46;">$1.</strong> ');
+
+          chatItemsHtml += `
+            <div style="margin-bottom: 22px; padding: 16px 18px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; page-break-inside: avoid;">
+              <div style="font-size: 11px; font-weight: bold; color: #047857; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px;">
+                Jawaban &amp; Uraian Syarah Asisten Turats
+              </div>
+              <div style="font-size: 13px; color: #334155; line-height: 1.6;">
+                ${formattedContent}
+              </div>
+              ${m.arabicText ? `
+                <div style="margin-top: 14px; padding: 12px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px;">
+                  <div style="font-size: 10px; font-weight: bold; color: #065f46; text-transform: uppercase; margin-bottom: 6px;">
+                    Matan Arab / Teks Nash Berharakat:
+                  </div>
+                  <div style="font-size: 17px; font-family: 'Amiri', 'Traditional Arabic', serif; direction: rtl; text-align: right; line-height: 2.1; color: #0f172a;">
+                    ${m.arabicText}
+                  </div>
+                </div>
+              ` : ''}
+              ${m.sources && m.sources.length > 0 ? `
+                <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed #e2e8f0; font-size: 11px; color: #475569;">
+                  <strong style="color: #065f46;">Rujukan Kitab:</strong>
+                  <ul style="margin: 4px 0 0 16px; padding: 0;">
+                    ${m.sources.map(s => `<li style="margin-bottom: 2px;"><strong>${s.kitabName}</strong> &mdash; ${s.bab}${s.halaman && s.halaman !== '-' ? `, Hal. ${s.halaman}` : ''}</li>`).join('')}
+                  </ul>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }
+      }
+
+      const fullHtml = `
+        <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; line-height: 1.5;">
+          <!-- Kop Risalah Resmi -->
+          <div style="border-bottom: 2.5px solid #065f46; padding-bottom: 14px; margin-bottom: 20px;">
+            <h1 style="font-size: 18px; font-weight: bold; color: #065f46; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+              Risalah Kajian &amp; Mudzakarah Kitab Turats
+            </h1>
+            <p style="font-size: 12px; color: #047857; font-weight: 600; margin: 0;">
+              Asisten Turats &bull; Dayah Perbatasan Minhajussalam Subulussalam
+            </p>
+            <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">
+              Dokumen Rekapitulasi Sesi Telaah Ilmiah &amp; Rujukan Sanad Kitab
+            </p>
+            <div style="margin-top: 10px; padding: 6px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; color: #475569; display: flex; justify-content: space-between;">
+              <span><strong>Waktu Sesi:</strong> ${dateStr}, pukul ${timeStr} WIB</span>
+              <span><strong>Total Percakapan:</strong> ${messages.length} Pesan</span>
+            </div>
+          </div>
+
+          <!-- Isi Percakapan -->
+          <div>
+            ${chatItemsHtml}
+          </div>
+
+          <!-- Footer Resmi -->
+          <div style="margin-top: 36px; padding-top: 12px; border-top: 1px dashed #cbd5e1; text-align: center; font-size: 10px; color: #94a3b8; page-break-inside: avoid;">
+            <p style="margin: 0 0 2px 0;">Dokumen ini disusun otomatis oleh Sistem Asisten Kaji Kitab &amp; Turats.</p>
+            <p style="margin: 0; font-style: italic;">Dayah Perbatasan Minhajussalam &bull; Kota Subulussalam, Aceh &bull; https://asisten-kajian.online</p>
+          </div>
+        </div>
+      `;
+
+      const opt = {
+        margin: [0.35, 0.4, 0.4, 0.4] as [number, number, number, number],
+        filename: `Risalah-Kajian-Turats-Lengkap-${new Date().toISOString().slice(0, 10)}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'in' as const, format: 'a4', orientation: 'portrait' as const },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      };
+
+      await html2pdf().set(opt).from(fullHtml).save();
+    } catch (err) {
+      console.error('Gagal mengunduh PDF seluruh percakapan:', err);
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-slate-50/50">
       {/* Top action bar when in conversation */}
       {messages.length > 0 && (
-        <div className="px-3 py-1.5 sm:px-4 sm:py-2 border-b border-slate-200 bg-white flex items-center justify-between">
+        <div className="px-3 py-1.5 sm:px-4 sm:py-2 border-b border-slate-200 bg-white flex flex-wrap items-center justify-between gap-2">
           <span className="text-[11px] sm:text-xs text-slate-600 font-medium">
             Kajian Aktif ({messages.length} pesan)
           </span>
-          <button
-            type="button"
-            onClick={clearChat}
-            aria-label="Bersihkan ruang telaah"
-            className="text-[11px] sm:text-xs text-slate-500 hover:text-rose-600 transition-colors px-2 py-1 rounded hover:bg-slate-50"
-          >
-            Bersihkan
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleDownloadFullChatPdf}
+              disabled={isExportingPdf}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors shadow-2xs disabled:opacity-60"
+              title="Unduh seluruh sesi percakapan kajian ini sebagai satu dokumen PDF lengkap"
+            >
+              <svg className="w-3.5 h-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.5V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              <span>{isExportingPdf ? 'Menyusun PDF...' : 'Unduh Seluruh Percakapan (PDF)'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={clearChat}
+              aria-label="Bersihkan ruang telaah"
+              className="text-[11px] sm:text-xs text-slate-500 hover:text-rose-600 transition-colors px-2 py-1 rounded hover:bg-slate-50"
+            >
+              Bersihkan
+            </button>
+          </div>
         </div>
       )}
 
