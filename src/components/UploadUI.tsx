@@ -13,10 +13,10 @@ function formatDate(date: Date): string {
 
 function FileIcon({ type }: { type: string }) {
   const colors: Record<string, string> = {
-    pdf: 'from-rose-500 to-rose-600',
-    word: 'from-blue-500 to-blue-600',
-    txt: 'from-slate-500 to-slate-600',
-    image: 'from-amber-500 to-amber-600',
+    pdf: 'bg-emerald-800 text-amber-200 border border-emerald-900/30',
+    word: 'bg-slate-700 text-slate-100 border border-slate-800',
+    txt: 'bg-slate-600 text-slate-100 border border-slate-700',
+    image: 'bg-amber-700 text-amber-100 border border-amber-800',
   };
   const labels: Record<string, string> = {
     pdf: 'PDF',
@@ -28,28 +28,33 @@ function FileIcon({ type }: { type: string }) {
   const key = ['png', 'jpg', 'jpeg', 'webp'].includes(type) ? 'image' : type;
 
   return (
-    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colors[key] || colors.txt} flex items-center justify-center shadow-md`}>
-      <span className="text-[10px] font-bold text-white">{labels[key] || 'FILE'}</span>
+    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${colors[key] || colors.txt} flex items-center justify-center shadow-xs flex-shrink-0`}>
+      <span className="text-[10px] font-bold">{labels[key] || 'KITAB'}</span>
     </div>
   );
 }
 
 function StatusBadge({ status }: { status: UploadedDocument['status'] }) {
   const styles: Record<string, string> = {
-    indexed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    indexing: 'bg-amber-100 text-amber-700 border-amber-200',
-    error: 'bg-rose-100 text-rose-700 border-rose-200',
-  };
-  const labels: Record<string, string> = {
-    indexed: '✓ Terindeks',
-    indexing: '⏳ Mengindeks...',
-    error: '✕ Gagal',
+    indexed: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    indexing: 'bg-amber-50 text-amber-800 border-amber-200',
+    error: 'bg-rose-50 text-rose-800 border-rose-200',
   };
 
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-bold border rounded-full ${styles[status]}`}>
-      {status === 'indexing' && <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse mr-1" />}
-      {labels[status]}
+    <span className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold border rounded-full ${styles[status]}`}>
+      {status === 'indexing' && <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />}
+      {status === 'indexed' && (
+        <svg className="w-3 h-3 text-emerald-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+        </svg>
+      )}
+      {status === 'error' && (
+        <svg className="w-3 h-3 text-rose-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      )}
+      {status === 'indexed' ? 'Terindeks' : status === 'indexing' ? 'Mengindeks...' : 'Gagal'}
     </span>
   );
 }
@@ -57,7 +62,7 @@ function StatusBadge({ status }: { status: UploadedDocument['status'] }) {
 function CategoryBadge({ category }: { category?: string }) {
   if (!category) return null;
   return (
-    <span className="px-2 py-0.5 text-[10px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md">
+    <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md">
       {category}
     </span>
   );
@@ -118,6 +123,7 @@ export default function UploadUI() {
     try {
       const res = await fetch('/api/rag');
       if (!res.ok) throw new Error('HTTP ' + res.status);
+
       const data = await res.json();
 
       if (Array.isArray(data.documents) && data.documents.length > 0) {
@@ -181,7 +187,7 @@ export default function UploadUI() {
         stage: 'Menyiapkan modul pembaca visual...',
       });
 
-            const pdfjs = await loadPdfJs();
+      const pdfjs = await loadPdfJs();
       if (!pdfjs) throw new Error('Gagal memuat modul PDF.js di browser.');
 
       const arrayBuffer = await file.arrayBuffer();
@@ -349,48 +355,60 @@ export default function UploadUI() {
   const categories = ['Semua', 'Fiqih', 'Hadits', 'Gramatika Nahwu', 'Akhlaq', 'Kajian Turats'];
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-50 p-6 lg:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-full w-full bg-slate-50 p-3 sm:p-6 lg:p-8 pb-20">
+      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-xl font-bold text-slate-800">Panel Unggah Dokumen Kitab (Knowledge Base RAG)</h1>
-            <span className="px-2.5 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 rounded-full border border-amber-200 inline-flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              Vision OCR (Riset Lanjutan)
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <h1 className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+              Korpus Literatur Kitab (Knowledge Base RAG)
+            </h1>
+            <span className="px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-slate-100 text-slate-700 rounded-full border border-slate-200 inline-flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+              Modul RAG Terindeks
             </span>
           </div>
-          <p className="text-sm text-slate-500">
-            Kelola dan telusuri korpus kitab turats terindeks (PDF teks / korpus kurikulum) ke dalam sistem Knowledge Base RAG.
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Kelola dan telusuri korpus naskah kitab kuning dan literatur turats yang diintegrasikan ke dalam basis rujukan ilmiah.
           </p>
         </div>
 
         {/* Notifikasi Sukses / Error */}
         {uploadSuccess && (
-          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-sm flex items-center justify-between animate-fade-in">
-            <span className="flex items-center gap-2">
-              <span className="text-base">✓</span> {uploadSuccess}
+          <div className="p-2.5 sm:p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs sm:text-sm flex items-center justify-between animate-fade-in">
+            <span className="flex items-center gap-2 font-medium">
+              <svg className="w-4 h-4 text-emerald-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+              {uploadSuccess}
             </span>
-            <button onClick={() => setUploadSuccess(null)} className="text-emerald-500 hover:text-emerald-700">✕</button>
+            <button onClick={() => setUploadSuccess(null)} className="text-emerald-600 hover:text-emerald-800 p-1">
+              &times;
+            </button>
           </div>
         )}
         {uploadError && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm flex items-center justify-between animate-fade-in">
-            <span className="flex items-center gap-2">
-              <span className="text-base">⚠</span> {uploadError}
+          <div className="p-2.5 sm:p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs sm:text-sm flex items-center justify-between animate-fade-in">
+            <span className="flex items-center gap-2 font-medium">
+              <svg className="w-4 h-4 text-rose-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+              </svg>
+              {uploadError}
             </span>
-            <button onClick={() => setUploadError(null)} className="text-rose-500 hover:text-rose-700">✕</button>
+            <button onClick={() => setUploadError(null)} className="text-rose-600 hover:text-rose-800 p-1">
+              &times;
+            </button>
           </div>
         )}
 
         {/* Live Progress Bar untuk AI Vision */}
         {visionProgress && (
-          <div className="p-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 border border-emerald-300 rounded-2xl shadow-sm space-y-3 animate-fade-in">
+          <div className="p-3.5 sm:p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl shadow-xs space-y-2.5 animate-fade-in">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-ping" />
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-900">
-                  Transkripsi AI Vision Sedang Berjalan
+                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-900">
+                  Transkripsi AI Vision Berjalan
                 </span>
               </div>
               <span className="text-xs font-semibold text-emerald-800">
@@ -398,8 +416,8 @@ export default function UploadUI() {
               </span>
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-800 mb-1">{visionProgress.docName}</p>
-              <p className="text-xs text-emerald-700">{visionProgress.stage}</p>
+              <p className="text-xs sm:text-sm font-semibold text-slate-800 mb-0.5 truncate">{visionProgress.docName}</p>
+              <p className="text-[11px] text-emerald-700">{visionProgress.stage}</p>
             </div>
             <div className="w-full bg-emerald-200/60 rounded-full h-2 overflow-hidden">
               <div
@@ -412,21 +430,21 @@ export default function UploadUI() {
           </div>
         )}
 
-        {/* Statistik */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Dokumen</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">{documents.length}</p>
+        {/* Statistik Kompak di Mobile */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4 shadow-xs">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">Total Naskah</p>
+            <p className="text-lg sm:text-2xl font-bold text-slate-900 mt-0.5">{documents.length}</p>
           </div>
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Terindeks</p>
-            <p className="text-2xl font-bold text-emerald-700 mt-1">
+          <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4 shadow-xs">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-800">Terindeks</p>
+            <p className="text-lg sm:text-2xl font-bold text-emerald-800 mt-0.5">
               {documents.filter(d => d.status === 'indexed').length}
             </p>
           </div>
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wider text-amber-700">Sedang Proses</p>
-            <p className="text-2xl font-bold text-amber-700 mt-1">
+          <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4 shadow-xs">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-amber-800">Proses</p>
+            <p className="text-lg sm:text-2xl font-bold text-amber-800 mt-0.5">
               {isUploading ? documents.filter(d => d.status === 'indexing').length : 0}
             </p>
           </div>
@@ -437,10 +455,10 @@ export default function UploadUI() {
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleFileDrop}
-          className={`border-2 border-dashed rounded-3xl p-8 text-center transition-all duration-200 ${
+          className={`border-2 border-dashed rounded-2xl p-5 sm:p-8 text-center transition-all duration-200 ${
             isDragging
-              ? 'border-emerald-500 bg-emerald-50/50 scale-[1.01]'
-              : 'border-slate-200 bg-white/70 hover:border-slate-300'
+              ? 'border-emerald-500 bg-emerald-50/50'
+              : 'border-slate-300 bg-white hover:border-slate-400'
           }`}
         >
           <input
@@ -451,38 +469,39 @@ export default function UploadUI() {
             className="hidden"
             onChange={handleFileSelect}
           />
-          <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-4 text-emerald-700 shadow-sm">
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-2.5 text-emerald-800 shadow-xs">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
           </div>
-          <h3 className="text-base font-semibold text-slate-800 mb-1">
-            Seret & Lepas file kitab ke sini
+          <h3 className="text-xs sm:text-sm font-bold text-slate-800 mb-0.5">
+            Unggah Berkas Naskah Kitab
           </h3>
-          <p className="text-xs text-slate-500 mb-4">
-            Mendukung file naskah PDF teks atau dokumen digital hingga 100 halaman per file (Maks. 50 MB).
+          <p className="text-[11px] sm:text-xs text-slate-500 mb-3 max-w-sm mx-auto">
+            Mendukung dokumen PDF teks atau naskah digital hingga 100 halaman (Maks. 50 MB).
           </p>
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+            className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 disabled:opacity-50 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors"
           >
             {isUploading ? 'Sedang Memproses...' : '+ Pilih File Kitab'}
           </button>
         </div>
 
         {/* Filter & Daftar Dokumen */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
-            <h2 className="text-sm font-bold text-slate-800">Dokumen Terindeks</h2>
-            <div className="flex flex-wrap gap-2">
+        <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-5 shadow-xs space-y-3.5">
+          <div className="flex flex-col sm:flex-row gap-2.5 justify-between items-start sm:items-center">
+            <h2 className="text-xs sm:text-sm font-bold text-slate-900">Dokumen Terindeks</h2>
+            {/* Horizontal scroll untuk kategori di mobile */}
+            <div className="flex overflow-x-auto pb-1 gap-1.5 w-full sm:w-auto no-scrollbar">
               {categories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                  className={`px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-lg whitespace-nowrap transition-colors flex-shrink-0 ${
                     selectedCategory === cat
-                      ? 'bg-emerald-700 text-white'
+                      ? 'bg-emerald-800 text-white'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
@@ -495,41 +514,46 @@ export default function UploadUI() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Cari dokumen kitab..."
+              placeholder="Cari naskah kitab..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-700 focus:border-emerald-700 bg-slate-50/50"
             />
           </div>
 
           <div className="divide-y divide-slate-100">
             {filteredDocs.length === 0 ? (
-              <p className="text-center py-8 text-xs text-slate-400">
-                Belum ada dokumen yang sesuai. Silakan unggah file kitab di atas.
+              <p className="text-center py-6 text-xs text-slate-400">
+                Belum ada dokumen yang sesuai kriteria pencarian.
               </p>
             ) : (
               filteredDocs.map(doc => (
-                <div key={doc.id} className="py-3.5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
+                <div key={doc.id} className="py-3 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                  {/* Bagian Info Dokumen (Judul Lengkap Tanpa Terpotong M./F..) */}
+                  <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                     <FileIcon type={doc.type} />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 truncate">{doc.name}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[11px] text-slate-400">{doc.size}</span>
-                        <span className="text-[11px] text-slate-300">•</span>
-                        <span className="text-[11px] text-slate-400">{formatDate(new Date(doc.uploadedAt))}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug break-words">
+                        {doc.name}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
+                        <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium">{doc.size}</span>
+                        <span className="text-[10px] sm:text-[11px] text-slate-300">&bull;</span>
+                        <span className="text-[10px] sm:text-[11px] text-slate-500">{formatDate(new Date(doc.uploadedAt))}</span>
                         <CategoryBadge category={doc.category} />
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 shrink-0">
+
+                  {/* Bagian Status & Aksi (Sejajar rapi di mobile) */}
+                  <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 pl-12 sm:pl-0">
                     <StatusBadge status={doc.status} />
                     {isProtectedDoc(doc.id) ? (
                       <span
-                        className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70 rounded-lg shadow-2xs"
+                        className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg shadow-2xs"
                         title="Kitab Kurikulum Inti Pesantren (Dilindungi Sistem)"
                       >
-                        <svg className="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-emerald-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                         Kitab Inti
@@ -537,7 +561,7 @@ export default function UploadUI() {
                     ) : (
                       <button
                         onClick={() => removeDocument(doc.id, doc.name)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                         title="Hapus Dokumen"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -12,9 +12,9 @@ import { ActiveModule } from '@/lib/types';
 import type { AiProviderStatus } from '@/lib/ai-provider';
 
 const moduleLabels: Record<ActiveModule, string> = {
-  'kaji-kitab': 'Kaji Kitab — RAG & Multimodal Bot',
-  'hafalan': "Simulasi Hafalan Al-Qur'an",
-  'upload': 'Panel Unggah Dokumen Kitab (Knowledge Base RAG)',
+  'kaji-kitab': 'Kaji Kitab & Turats (Rujukan Sanad & Matan)',
+  'hafalan': "Muraja'ah Hafalan Al-Qur'an",
+  'upload': 'Korpus Literatur Kitab (Knowledge Base RAG)',
 };
 
 export default function HomePage() {
@@ -50,7 +50,7 @@ export default function HomePage() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header
           onMenuToggle={() => setSidebarOpen(prev => !prev)}
@@ -59,13 +59,21 @@ export default function HomePage() {
           aiStatus={aiStatus}
         />
 
-        {/* Module Content */}
-        <main className="flex-1 overflow-hidden">
-          <div className={`h-full ${activeModule === 'kaji-kitab' ? '' : 'hidden'}`}>
+        {/* Module Content with robust scroll containers */}
+        <main className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+          <div className={`h-full w-full flex-1 flex flex-col min-h-0 ${activeModule === 'kaji-kitab' ? '' : 'hidden'}`}>
             <ChatUI onAiStatusChange={setAiStatus} />
           </div>
-          {activeModule === 'hafalan' && <HafalanUI />}
-          {activeModule === 'upload' && <UploadUI />}
+          {activeModule === 'hafalan' && (
+            <div className="h-full w-full flex-1 min-h-0 overflow-y-auto">
+              <HafalanUI />
+            </div>
+          )}
+          {activeModule === 'upload' && (
+            <div className="h-full w-full flex-1 min-h-0 overflow-y-auto">
+              <UploadUI />
+            </div>
+          )}
         </main>
 
         <Footer />
