@@ -68,14 +68,16 @@ export default function Sidebar({ activeModule, onModuleChange, isOpen, onClose 
         {/* Brand Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-800 border border-emerald-900/30 flex items-center justify-center text-amber-200 shadow-xs flex-shrink-0">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-              </svg>
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center p-0.5 bg-white border border-slate-200 shadow-xs flex-shrink-0">
+              <img
+                src="/logo-dayah.png"
+                alt="Logo Dayah Minhajussalam"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="min-w-0">
               <h2 className="text-sm font-bold text-slate-900 leading-tight truncate">Asisten Turats</h2>
-              <p className="text-xs text-slate-500 font-medium truncate">Kaji Kitab &amp; Sanad</p>
+              <p className="text-xs text-slate-500 font-medium truncate">Dayah Minhajussalam</p>
             </div>
           </div>
 
@@ -94,7 +96,7 @@ export default function Sidebar({ activeModule, onModuleChange, isOpen, onClose 
         <div className="px-4 py-2 border-b border-slate-50">
           <div className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg">
             <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider text-center">
-              Edisi Riset Ilmiah Dayah/Pesantren
+              Dayah Perbatasan Minhajussalam
             </p>
           </div>
         </div>
