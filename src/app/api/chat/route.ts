@@ -32,6 +32,14 @@ PRINSIP UTAMA: INTEGRITAS ILMIAH & ANTI-HALUSINASI (SANGAT KETAT)
    - Tidak perlu menyebutkan nomor halaman (cukup sebutkan Nama Kitab, Pengarang, dan Bab/Fasal/Materi spesifik).
    - Cantumkan teks Arab matan/ayat/hadits berharakat di properti "arabicText".
 
+4. MULTIMODAL VISION OCR NASKAH KITAB (JIKA MENERIMA GAMBAR / FOTO LEMBARAN KITAB):
+   - Transkripsikan teks Arab matan/ibarat kitab yang terbaca pada gambar ke properti "arabicText" secara lengkap dan berharakat rapi.
+   - Set "isOcr": true pada JSON output.
+   - Pada "reply", berikan ulasan komprehensif:
+     * Makna & Terjemah ibarat kitab.
+     * Syarah & Uraian Fiqih / Nahwu / Adab dari ibarat tersebut.
+   - Pada "sources", sebutkan identifikasi nama kitab atau bab materi yang dibahas.
+
 FORMAT OUTPUT JSON (Wajib JSON murni yang valid tanpa teks pembuka/penutup):
 {
   "reply": "Penjelasan mendalam, jujur, mengalir, dan bernas. Bedakan antara hukum fiqih, dalil hadits, dan hikmah.",
@@ -143,7 +151,9 @@ async function callSumoPodApi(
     endpoint = endpoint.endsWith('/v1') ? `${endpoint}/chat/completions` : `${endpoint}/v1/chat/completions`;
   }
 
-  const model = process.env.SUMOPOD_MODEL || 'gpt-4o-mini';
+  const model = image
+    ? (process.env.SUMOPOD_VISION_MODEL || process.env.SUMOPOD_MODEL || 'gpt-4o-mini')
+    : (process.env.SUMOPOD_MODEL || 'gpt-4o-mini');
 
   const messages: Array<{ role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [
     { role: 'system', content: SYSTEM_PROMPT }
@@ -159,10 +169,14 @@ async function callSumoPodApi(
   }
 
   if (image) {
+    const ocrInstruction = message && message.trim()
+      ? `Instruksi pengguna: "${message}"\nTolong transkripsikan teks Arab pada foto naskah kitab ini secara akurat (lengkap dengan harakat pada arabicText), berikan terjemahan dan syarah penjelasannya secara mendalam, serta sebutkan rujukan kitab atau bab pembahasannya.`
+      : 'Tolong transkripsikan teks Arab pada foto naskah kitab ini secara akurat (lengkap dengan harakat pada arabicText), berikan terjemahan dan syarah penjelasannya secara mendalam, serta sebutkan rujukan kitab atau bab pembahasannya.';
+
     messages.push({
       role: 'user',
       content: [
-        { type: 'text', text: message || 'Tolong transkripsi teks Arab pada foto kitab ini dan berikan syarah penjelasannya serta rujukan kitab.' },
+        { type: 'text', text: ocrInstruction },
         { type: 'image_url', image_url: { url: image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}` } }
       ]
     });
