@@ -56,6 +56,46 @@ function TypingIndicator() {
   );
 }
 
+// Helper Markdown Parser untuk Tampilan Chat & Ekspor PDF
+function renderMarkdown(rawText: string, isPdf = false): string {
+  if (!rawText) return '';
+
+  let html = rawText.replace(/\r\n/g, '\n');
+
+  // 1. Headings (###, ##, #)
+  html = html
+    .replace(/^### (.*?)$/gm, isPdf
+      ? '<h4 style="font-size: 13px; font-weight: bold; color: #065f46; margin: 12px 0 4px 0;">$1</h4>'
+      : '<h4 class="font-bold text-emerald-900 text-xs sm:text-sm mt-3 mb-1">$1</h4>')
+    .replace(/^## (.*?)$/gm, isPdf
+      ? '<h3 style="font-size: 14px; font-weight: bold; color: #047857; margin: 14px 0 6px 0;">$1</h3>'
+      : '<h3 class="font-bold text-emerald-950 text-sm sm:text-base mt-3.5 mb-1.5">$1</h3>')
+    .replace(/^# (.*?)$/gm, isPdf
+      ? '<h2 style="font-size: 16px; font-weight: bold; color: #064e3b; margin: 16px 0 8px 0;">$1</h2>'
+      : '<h2 class="font-bold text-emerald-950 text-base sm:text-lg mt-4 mb-2">$1</h2>');
+
+  // 2. Bold and Italic
+  html = html
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+  // 3. Bullet lists (- item or * item)
+  html = html.replace(/^[-*]\s+(.*?)$/gm, isPdf
+    ? '<div style="margin-left: 12px; margin-bottom: 3px; display: flex; align-items: flex-start;"><span style="color: #065f46; margin-right: 6px;">&bull;</span><span>$1</span></div>'
+    : '<div class="flex items-start gap-1.5 ml-2 my-0.5"><span class="text-emerald-700 font-bold flex-shrink-0">&bull;</span><span>$1</span></div>');
+
+  // 4. Numbered lists (1. item)
+  html = html.replace(/^(\d+)\.\s+(.*?)$/gm, isPdf
+    ? '<div style="margin-left: 8px; margin-bottom: 3px;"><strong style="color: #065f46;">$1.</strong> $2</div>'
+    : '<div class="ml-1 my-0.5"><span class="font-semibold text-emerald-800">$1.</span> $2</div>');
+
+  // 5. Line breaks
+  html = html.replace(/\n\n/g, isPdf ? '<div style="height: 6px;"></div>' : '<div class="h-1.5"></div>');
+  html = html.replace(/\n/g, '<br/>');
+
+  return html;
+}
+
 // Chat bubble
 function ChatBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === 'user';
@@ -73,10 +113,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
   const handleDownloadPdf = () => {
     if (typeof window === 'undefined') return;
     
-    const formattedContent = message.content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br/>');
+    const formattedContent = renderMarkdown(message.content, true);
       
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; line-height: 1.6;">
@@ -168,11 +205,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
         `}>
           <div className="text-xs sm:text-sm leading-relaxed prose-chat"
             dangerouslySetInnerHTML={{
-              __html: message.content
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\n/g, '<br/>')
-                .replace(/^(\d+)\.\s/gm, '<span class="font-semibold text-emerald-800">$1.</span> ')
+              __html: renderMarkdown(message.content, false)
             }}
           />
 
@@ -427,14 +460,10 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
             </div>
           `;
         } else {
-          const formattedContent = m.content
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/\n/g, '<br/>')
-            .replace(/^(\d+)\.\s/gm, '<strong style="color: #065f46;">$1.</strong> ');
+          const formattedContent = renderMarkdown(m.content, true);
 
           chatItemsHtml += `
-            <div style="margin-bottom: 22px; padding: 16px 18px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; page-break-inside: avoid;">
+            <div style="margin-bottom: 22px; padding: 14px 16px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;">
               <div style="font-size: 11px; font-weight: bold; color: #047857; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px;">
                 Jawaban &amp; Uraian Syarah Asisten Turats
               </div>
