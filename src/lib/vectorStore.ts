@@ -62,7 +62,7 @@ async function embedText(text: string): Promise<number[]> {
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`Embedding API error: ${response.status} – ${err}`);
+    throw new Error(`Embedding API error: ${response.status} - ${err}`);
   }
 
   const json = await response.json();
@@ -89,8 +89,8 @@ export async function upsertChunks(
   saveStore(store);
 }
 
-/** Cari top-k chunk paling mirip dengan query */
-export async function similaritySearch(query: string, k = 4): Promise<string[]> {
+/** Cari top-k chunk paling mirip dengan query dengan batas minimal skor relevansi */
+export async function similaritySearch(query: string, k = 4, minScore = 0.48): Promise<string[]> {
   const store = loadStore();
   if (store.length === 0) return [];
 
@@ -102,7 +102,10 @@ export async function similaritySearch(query: string, k = 4): Promise<string[]> 
   }));
 
   scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, k).map((s) => s.text);
+  return scored
+    .filter((s) => s.score >= minScore)
+    .slice(0, k)
+    .map((s) => s.text);
 }
 
 /** Hapus semua entri yang berasal dari dokumen tertentu */

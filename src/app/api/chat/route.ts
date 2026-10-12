@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAiProviderStatus, getGeminiApiKey, getSumopodApiKey, type AiProviderMode } from '@/lib/ai-provider';
 import { getMockChatResponse } from '@/lib/mock-data';
 import { ChatApiRequest, ChatApiResponse } from '@/lib/types';
-import { similaritySearch, listDocuments } from '@/lib/vectorStore';
+import { similaritySearch } from '@/lib/vectorStore';
 
 const SYSTEM_PROMPT = `Anda adalah Asisten AI Kaji Kitab & Turats, seorang khadim keilmuan Islam dan peneliti turats klasik (kitab kuning). Anda mengemban amanah ilmiah: wajib jujur, teliti, dan TIDAK BOLEH MEMALSUKAN atau MENCATUT isi kitab.
 
@@ -16,7 +16,7 @@ PRINSIP UTAMA: INTEGRITAS ILMIAH & ANTI-HALUSINASI (SANGAT KETAT)
    - JANGAN PERNAH mengarang kalimat seolah-olah isi kitab tertentu (misal: "Dalam kitab Fathul Mu'in dijelaskan bahwa akal adalah alat memahami syariat..."). Ini adalah KEBOHONGAN ILMIAH yang merusak kredibilitas!
    - Kitab fiqih matan/syarah (seperti Fathul Mu'in, Safinatun Najah, Fathul Qarib) fokus pada teknis hukum (syarat sah, rukun, pembatal), BUKAN uraian esai filsafat atau logika bebas.
    - Jika pengguna bertanya tentang "Kenapa berakal / hikmah / alasan syariat":
-     * Jelaskan bahwa "Berakal" adalah SYARAT TAKLIF (beban syariat), berlandaskan hadits Nabi ﷺ: «رُفِعَ الْقَلَمُ عَنْ ثَلَاثٍ: ... وَعَنِ الْمَجْنُونِ حَتَّى يَعْقِلَ» (HR. Abu Dawud, Ahmad, dll).
+     * Jelaskan bahwa "Berakal" adalah SYARAT TAKLIF (beban syariat), berlandaskan hadits Nabi ﷺ: رُفِعَ الْقَلَمُ عَنْ ثَلاَثَةٍ: ... وَعَنِ الْمَجْنُونِ حَتَّى يَعْقِلَ (HR. Abu Dawud, Ahmad, dll).
      * Dalam fiqih ibadah teknis, orang tidak berakal tidak sah wudhunya karena tidak memenuhi syarat TAMYIZ dan tidak sah NIAT-nya.
      * Rujuklah hadits tersebut atau kitab ushul/kaidah fiqih, JANGAN mencatut kitab fiqih praktis dengan narasi buatan sendiri.
 
@@ -24,7 +24,7 @@ PRINSIP UTAMA: INTEGRITAS ILMIAH & ANTI-HALUSINASI (SANGAT KETAT)
    - Fiqih Teknis (Rukun, Syarat Sah, Pembatal, Tata Cara): Safinatun Najah (Syaikh Salim bin Sumair), Fathul Qarib (Ibnu Qasim al-Ghazi), Fathul Mu'in (Syaikh Zainuddin al-Malibari), Minhajuth Thalibin (Imam An-Nawawi).
    - Dalil & Hadits Nabi: Riyadhus Shalihin, Bulughul Maram, Shahih Bukhari, Shahih Muslim, Sunan Abi Dawud.
    - Hikmah Ibadah, Adab Hati, & Tasawuf: Ihya' Ulumiddin, Bidayatul Hidayah (Imam Al-Ghazali), Ta'limul Muta'allim (Syaikh Az-Zarnuji).
-   - RAG / Dokumen Upload: Jika pertanyaan berkaitan dengan dokumen yang diunggah pengguna ke Knowledge Base, jadikan dokumen tersebut rujukan utama dan sebutkan nama filenya dengan tepat.
+   - RAG / Dokumen Upload: Jika ada potongan teks relevan dari Knowledge Base yang dilampirkan, jadikan itu rujukan utama. Jika TIDAK ADA potongan teks yang dilampirkan, rujuklah kitab turats yang lazim sesuai topik yang ditanyakan.
 
 3. PEDOMAN GAYA BAHASA:
    - Bertutur santun, mengalir, runtut, dan jelas layaknya seorang ustadz menerangkan kepada santrinya.
@@ -40,6 +40,18 @@ PRINSIP UTAMA: INTEGRITAS ILMIAH & ANTI-HALUSINASI (SANGAT KETAT)
      * Syarah & Uraian Fiqih / Nahwu / Adab dari ibarat tersebut.
    - Pada "sources", sebutkan identifikasi nama kitab atau bab materi yang dibahas.
 
+5. RESPON TERHADAP SAPAAN, UCAPAN TERIMA KASIH, ATAU RESPON PENDEK (CHIT-CHAT):
+   - Jika pengguna hanya merespon singkat ("oke", "oke baik", "terima kasih", "syukron", "alhamdulillah", "siap", dll):
+     * Balas dengan hangat, santun, dan ringkas (1-2 kalimat), misalnya: "Sama-sama / Afwan. Semoga pembahasannya bermanfaat dan barakah. Jika ada materi atau naskah kitab lain yang ingin dikaji, silakan sampaikan ya."
+     * DILARANG KERAS tiba-tiba mengarang penjelasan kitab baru atau membahas materi yang tidak diminta!
+     * Kosongkan properti "arabicText" ("").
+     * Jadikan properti "sources" array kosong ([]).
+
+6. PERTANYAAN LANJUTAN (FOLLOW-UP):
+   - Jika pengguna meminta "jelaskan lebih rinci", "apa dalilnya", "maksudnya bagaimana", dll:
+     * Fokus lanjutkan dan perdalam topik dari naskah atau pembahasan yang SEDANG dibicarakan pada pesan sebelumnya (lihat konteks percakapan).
+     * JANGAN melompat ke kitab atau topik lain yang tidak relevan.
+
 FORMAT OUTPUT JSON (Wajib JSON murni yang valid tanpa teks pembuka/penutup):
 {
   "reply": "Penjelasan mendalam, jujur, mengalir, dan bernas. Bedakan antara hukum fiqih, dalil hadits, dan hikmah.",
@@ -52,6 +64,37 @@ FORMAT OUTPUT JSON (Wajib JSON murni yang valid tanpa teks pembuka/penutup):
   ],
   "isOcr": false
 }`;
+
+// Deteksi ungkapan singkat / chit-chat / salam / terima kasih yang tidak memerlukan pencarian korpus
+function isChitChatMessage(text: string): boolean {
+  if (!text) return false;
+  const clean = text.trim().toLowerCase().replace(/[.,!?;:()_\\-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const chitchatPatterns = [
+    /^(oke|ok|oke baik|baik|baiklah|sip|siap|siap ustadz|siap ustad)$/i,
+    /^(terima kasih|terimakasih|makasih|makasih ya|makasih banyak|nuhun|matur nuwun)$/i,
+    /^(syukron|syukran|jazakallah|jazakallah khair|jazakallahu khairan|barakallah|barakallahu fiik)$/i,
+    /^(alhamdulillah|alhamdulillah baik|paham|oke paham|sudah paham|mengerti|jelas)$/i,
+    /^(halo|hai|assalamualaikum|assalamu alaikum|waalaikumsalam|wa alaikum salam|salam)$/i,
+    /^(sama sama|sama-sama|afwan|kembali kasih)$/i,
+  ];
+  return chitchatPatterns.some(pattern => pattern.test(clean));
+}
+
+// Deteksi pertanyaan lanjutan pendek (follow-up) tanpa subjek spesifik
+function isFollowUpQuery(text: string): boolean {
+  if (!text) return false;
+  const clean = text.trim().toLowerCase().replace(/[.,!?;:()_\\-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const followUpPatterns = [
+    /^(jelaskan|terangkan|uraikan|rincikan|bisa jelaskan)\s+(lebih\s+)?(rinci|detail|lengkap|mendalam|jelas)$/i,
+    /^(lebih\s+rinci|lebih\s+detail|lebih\s+lengkap|lebih\s+jelas|lebih\s+mendalam)$/i,
+    /^(apa dalilnya|dalilnya apa|mana dalilnya|ada dalilnya)$/i,
+    /^(contohnya apa|bisa berikan contoh|contohnya bagaimana)$/i,
+    /^(maksudnya apa|maksudnya gimana|maksudnya bagaimana)$/i,
+    /^(kenapa begitu|kenapa demikian|mengapa begitu)$/i,
+    /^(lalu bagaimana|lalu gimana|kemudian bagaimana)$/i,
+  ];
+  return followUpPatterns.some(pattern => pattern.test(clean));
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,36 +111,28 @@ export async function POST(request: NextRequest) {
     const sumopodApiKey = getSumopodApiKey();
     const geminiApiKey = getGeminiApiKey();
 
-    // Dapatkan daftar dokumen yang sudah diunggah ke Knowledge Base
-    let uploadedDocsInfo = "Daftar dokumen di Knowledge Base saat ini: Kosong.";
-    try {
-      const docs = listDocuments();
-      if (docs.length > 0) {
-        uploadedDocsInfo = "Daftar dokumen di Knowledge Base saat ini: " + docs.map(d => `"${d.docName}" (${d.chunkCount} chunk)`).join(', ') + ".";
-      }
-    } catch (e) {
-      console.error("Gagal meload daftar dokumen", e);
-    }
+    const isChitChat = isChitChatMessage(message || '');
+    const isFollowUp = isFollowUpQuery(message || '');
 
-    // Ambil konteks relevan dari Knowledge Base RAG (jika ada)
-    let ragContext = '\n\n=== INFORMASI KNOWLEDGE BASE ===\n' + uploadedDocsInfo + '\n';
-    if (message && message.trim().length > 3) {
+    // Ambil konteks relevan dari Knowledge Base RAG HANYA jika bukan chit-chat, bukan follow-up, dan bukan gambar
+    let ragContext = '';
+    if (!image && !isChitChat && !isFollowUp && message && message.trim().length > 3) {
       try {
-        const ragChunks = await similaritySearch(message, 4);
+        const ragChunks = await similaritySearch(message, 4, 0.48);
         if (ragChunks.length > 0) {
-          ragContext += '\n=== KONTEKS DARI KITAB YANG TELAH DIUPLOAD (GUNAKAN INI SEBAGAI RUJUKAN UTAMA JIKA RELEVAN) ===\n' +
+          ragContext = '\n=== KONTEKS DARI KITAB YANG TELAH DIUNGGAH (HANYA GUNAKAN JIKA RELEVAN DENGAN PERTANYAAN) ===\n' +
             ragChunks.join('\n\n---\n\n') +
             '\n=== AKHIR KONTEKS KITAB ===\n';
         }
-      } catch {
-        // Jika RAG gagal, tetap lanjut
+      } catch (e) {
+        console.error("RAG similarity search failed:", e);
       }
     }
 
     // 1. Prioritaskan SumoPod jika API Key SumoPod tersedia
     if (sumopodApiKey) {
       try {
-        const response = await callSumoPodApi(sumopodApiKey, message, image, conversationHistory, ragContext);
+        const response = await callSumoPodApi(sumopodApiKey, message, image, conversationHistory, ragContext, isChitChat);
         return withProviderStatus(response, 'sumopod');
       } catch (sumoError) {
         console.error('SumoPod API error, mencoba fallback:', sumoError);
@@ -107,7 +142,7 @@ export async function POST(request: NextRequest) {
     // 2. Gunakan Google Gemini jika GEMINI_API_KEY tersedia
     if (geminiApiKey && geminiApiKey.trim() !== '') {
       try {
-        const response = await callGeminiApi(geminiApiKey, message, image, conversationHistory, ragContext);
+        const response = await callGeminiApi(geminiApiKey, message, image, conversationHistory, ragContext, isChitChat);
         return withProviderStatus(response, 'gemini');
       } catch (geminiError) {
         console.error('Gemini API error, mencoba fallback:', geminiError);
@@ -143,7 +178,8 @@ async function callSumoPodApi(
   message: string,
   image?: string,
   conversationHistory?: { role: string; content: string }[],
-  ragContext = ''
+  ragContext = '',
+  isChitChat = false
 ): Promise<ChatApiResponse> {
   const rawBaseUrl = process.env.SUMOPOD_BASE_URL || 'https://ai.sumopod.com';
   let endpoint = rawBaseUrl.replace(/\/+$/, '');
@@ -160,7 +196,7 @@ async function callSumoPodApi(
   ];
 
   if (conversationHistory && conversationHistory.length > 0) {
-    for (const item of conversationHistory.slice(-4)) {
+    for (const item of conversationHistory.slice(-6)) {
       messages.push({
         role: item.role === 'assistant' ? 'assistant' : 'user',
         content: item.content
@@ -181,12 +217,15 @@ async function callSumoPodApi(
       ]
     });
   } else {
-    const enrichedMessage = ragContext
-      ? (ragContext + '\n\nPertanyaan pengguna: ' + (message || 'Mohon penjelasan materi kitab turats terkait.'))
-      : (message || 'Mohon penjelasan materi kitab turats terkait.');
+    let finalUserText = message || 'Mohon penjelasan materi kitab turats terkait.';
+    if (isChitChat) {
+      finalUserText = `[Pengguna merespon singkat: "${message}"]. Balas dengan ramah, santun, dan singkat (1-2 kalimat). JANGAN mengarang atau memunculkan materi kitab baru yang tidak ditanyakan. Kosongkan arabicText ("") dan jadikan sources array kosong ([]).`;
+    } else if (ragContext) {
+      finalUserText = ragContext + '\n\nPertanyaan pengguna: ' + finalUserText;
+    }
     messages.push({
       role: 'user',
-      content: enrichedMessage
+      content: finalUserText
     });
   }
 
@@ -236,22 +275,26 @@ async function callGeminiApi(
   message: string,
   image?: string,
   conversationHistory?: { role: string; content: string }[],
-  ragContext = ''
+  ragContext = '',
+  isChitChat = false
 ): Promise<ChatApiResponse> {
   const parts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
 
   if (conversationHistory && conversationHistory.length > 0) {
     const contextText = conversationHistory
-      .slice(-4)
+      .slice(-6)
       .map(m => `${m.role === 'user' ? 'Pengguna' : 'Asisten'}: ${m.content}`)
       .join('\n');
     parts.push({ text: `Konteks percakapan sebelumnya:\n${contextText}\n\n` });
   }
 
-  const enrichedGemMessage = ragContext
-    ? (ragContext + '\n\nPertanyaan pengguna: ' + (message || 'Tolong analisis dan transkripsi gambar halaman kitab ini.'))
-    : (message || 'Tolong analisis dan transkripsi gambar halaman kitab ini.');
-  parts.push({ text: enrichedGemMessage });
+  let finalGemText = message || 'Tolong analisis dan transkripsi gambar halaman kitab ini.';
+  if (isChitChat) {
+    finalGemText = `[Pengguna merespon singkat: "${message}"]. Balas dengan ramah, santun, dan singkat (1-2 kalimat). JANGAN mengarang atau memunculkan materi kitab baru yang tidak ditanyakan. Kosongkan arabicText ("") dan jadikan sources array kosong ([]).`;
+  } else if (ragContext) {
+    finalGemText = ragContext + '\n\nPertanyaan pengguna: ' + finalGemText;
+  }
+  parts.push({ text: finalGemText });
 
   if (image) {
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
