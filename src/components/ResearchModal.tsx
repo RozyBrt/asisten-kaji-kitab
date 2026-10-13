@@ -68,13 +68,15 @@ export default function ResearchModal({ isOpen, onClose }: ResearchModalProps) {
                   Penulisan syarah dan sintesis materi yang terhubung langsung dengan sitasi teks matan Arab, nama kitab, bab, dan fasal rujukan otentik.
                 </p>
               </div>
-              <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/80">
+              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-base font-bold text-amber-800">③ Vision OCR</span>
-                  <span className="text-[9px] bg-amber-200 text-amber-900 font-bold px-1.5 py-0.5 rounded">Riset Lanjutan</span>
+                  <span className="text-base font-bold text-emerald-700">③ Multimodal Vision OCR</span>
+                  <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded border border-emerald-200">
+                    Aktif &amp; Terintegrasi
+                  </span>
                 </div>
                 <p className="text-[11px] text-slate-600">
-                  Modul eksperimental pembacaan citra naskah fisik kitab kuning (Computer Vision Arab klasik) yang disiapkan pada roadmap pengembangan berikutnya.
+                  Pembacaan dan transkripsi cerdas citra naskah fisik kitab kuning (aksara Arab/Pegon) dengan model Vision AI, otomatis menyajikan teks matan berharakat serta syarah hukum fiqih.
                 </p>
               </div>
             </div>

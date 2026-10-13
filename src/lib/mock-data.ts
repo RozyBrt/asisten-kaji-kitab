@@ -1,4 +1,4 @@
-// Mock data and fallback responses for demonstration without API keys
+﻿// Mock data and fallback responses for demonstration without API keys
 
 import { ChatApiResponse, HafalanQuestion, UploadedDocument, KitabSource } from './types';
 
@@ -52,7 +52,7 @@ const defaultMockResponse: ChatApiResponse = {
 };
 
 const mockOcrResponse: ChatApiResponse = {
-  reply: `**Hasil Analisis Naskah Kitab (Multimodal OCR & Syarah):**\n\nNaskah yang dianalisis teridentifikasi sebagai bab thaharah dalam literatur fikih mazhab Syafi'i. Berikut transkripsi matan beserta penjelasan syarahnya:\n\n**Ringkasan Fikih:**\nFashl ini menegaskan kewajiban fardhu wudhu yang terdiri atas 6 rukun pokok. Niat wajib dihadirkan berbarengan dengan basuhan pertama pada wajah.\n\n**Uraian Rukun:**\n- Rukun pertama adalah **Niat** di dalam hati.\n- Rukun kedua adalah **Membasuh wajah** dari batas tumbuh rambut hingga dagu.\n- Rukun ketiga adalah **Membasuh kedua tangan hingga siku**.\n- Rukun keempat adalah **Mengusap sebagian kepala**.\n- Rukun kelima adalah **Membasuh kedua kaki hingga mata kaki**.\n- Rukun keenam adalah **Tertib**.\n\n*Catatan: Modul Vision OCR ini berstatus dalam riset dan pengembangan lanjutan.*`,
+  reply: `**Hasil Analisis Naskah Kitab (Multimodal OCR & Syarah):**\n\nNaskah yang dianalisis teridentifikasi sebagai bab thaharah dalam literatur fikih mazhab Syafi'i. Berikut transkripsi matan beserta penjelasan syarahnya:\n\n**Ringkasan Fikih:**\nFashl ini menegaskan kewajiban fardhu wudhu yang terdiri atas 6 rukun pokok. Niat wajib dihadirkan berbarengan dengan basuhan pertama pada wajah.\n\n**Uraian Rukun:**\n- Rukun pertama adalah **Niat** di dalam hati.\n- Rukun kedua adalah **Membasuh wajah** dari batas tumbuh rambut hingga dagu.\n- Rukun ketiga adalah **Membasuh kedua tangan hingga siku**.\n- Rukun keempat adalah **Mengusap sebagian kepala**.\n- Rukun kelima adalah **Membasuh kedua kaki hingga mata kaki**.\n- Rukun keenam adalah **Tertib**.\n\n*Catatan: Transkripsi naskah dan telaah syarah dianalisis secara cerdas oleh modul Multimodal Vision OCR.*`,
   arabicText: `فُرُوضُ الْوُضُوءِ سِتَّةٌ: الْأَوَّلُ النِّيَّةُ عِنْدَ غَسْلِ الْوَجْهِ، وَالثَّانِي غَسْلُ الْوَجْهِ، وَالثَّالِثُ غَسْلُ الْيَدَيْنِ مَعَ الْمِرْفَقَيْنِ، وَالرَّابِعُ مَسْحُ بَعْضِ الرَّأْسِ، وَالْخَامِسُ غَسْلُ الرِّجْلَيْنِ مَعَ الْكَعْبَيْنِ، وَالسَّادِسُ التَّرْتِيبُ`,
   sources: [
     { kitabName: 'Fathul Qarib al-Mujib (karya Ibnu Qasim al-Ghazi)', bab: 'Bab Thaharah - Fashl Furudhul Wudhu', halaman: '14' },
@@ -336,3 +336,4 @@ export const quickPrompts: QuickPrompt[] = [
   { label: 'Hukum puasa Senin-Kamis', category: 'Fikih' },
   { label: 'Doa setelah shalat', category: 'Adab' },
 ];
+
