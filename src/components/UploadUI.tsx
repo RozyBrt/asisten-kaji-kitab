@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { mockDocuments } from '@/lib/mock-data';
@@ -161,8 +161,8 @@ export default function UploadUI() {
               </p>
             </div>
           </div>
-          <span className="self-end sm:self-auto shrink-0 px-2.5 py-1 text-[11px] font-semibold bg-slate-100 text-slate-700 rounded-lg border border-slate-200">
-            Kurikulum Terverifikasi
+          <span className="self-end sm:self-auto shrink-0 px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-200">
+            Rujukan Mu&apos;tamad
           </span>
         </div>
 
@@ -271,3 +271,4 @@ export default function UploadUI() {
     </div>
   );
 }
+
