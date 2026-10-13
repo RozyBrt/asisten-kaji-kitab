@@ -41,7 +41,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden islamic-pattern-bg">
+    <div className="fixed inset-0 h-full h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex flex-row islamic-pattern-bg">
       {/* Sidebar */}
       <Sidebar
         activeModule={activeModule}
@@ -51,7 +51,7 @@ export default function HomePage() {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
         <Header
           onMenuToggle={() => setSidebarOpen(prev => !prev)}
           activeModuleLabel={moduleLabels[activeModule]}
@@ -65,12 +65,12 @@ export default function HomePage() {
             <ChatUI onAiStatusChange={setAiStatus} />
           </div>
           {activeModule === 'hafalan' && (
-            <div className="h-full w-full flex-1 min-h-0 overflow-y-auto">
+            <div className="h-full w-full flex-1 min-h-0 overflow-y-auto overscroll-contain">
               <HafalanUI />
             </div>
           )}
           {activeModule === 'upload' && (
-            <div className="h-full w-full flex-1 min-h-0 overflow-y-auto">
+            <div className="h-full w-full flex-1 min-h-0 overflow-y-auto overscroll-contain">
               <UploadUI />
             </div>
           )}

@@ -121,6 +121,17 @@
 }
 
 /* Base styles */
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -129,7 +140,6 @@ body {
   background: linear-gradient(135deg, var(--color-background) 0%, #e0f2e9 50%, #f0fdf4 100%);
   color: var(--color-foreground);
   font-family: var(--font-sans);
-  min-height: 100vh;
 }
 
 /* Islamic geometric pattern overlay */

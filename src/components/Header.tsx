@@ -51,7 +51,7 @@ export default function Header({ onMenuToggle, activeModuleLabel, onOpenResearch
     : 'AI Siap';
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-xs flex-shrink-0">
+    <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-xs flex-shrink-0">
       <div className="flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 lg:px-6 max-w-7xl mx-auto w-full gap-2">
         {/* Left: Mobile menu + Title */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">

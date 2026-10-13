@@ -12,7 +12,7 @@ export default function ResearchModal({ isOpen, onClose }: ResearchModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-emerald-100 overflow-hidden">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[88dvh] flex flex-col shadow-2xl border border-emerald-100 overflow-hidden">
         {/* Header */}
         <div className="p-5 border-b border-emerald-100 flex items-center justify-between bg-emerald-50/50">
           <div className="flex items-center gap-3">
@@ -37,7 +37,7 @@ export default function ResearchModal({ isOpen, onClose }: ResearchModalProps) {
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto space-y-6 text-sm text-slate-600 leading-relaxed">
+        <div className="p-6 overflow-y-auto overscroll-contain space-y-6 text-sm text-slate-600 leading-relaxed">
           {/* Latar Belakang */}
           <section>
             <h4 className="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-2">

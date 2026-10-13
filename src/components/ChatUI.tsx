@@ -576,7 +576,7 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
       )}
 
       {/* Chat Messages Area */}
-      <div className="flex-1 overflow-y-auto chat-scroll p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-5">
+      <div className="flex-1 overflow-y-auto chat-scroll overscroll-contain p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-5">
         {messages.length === 0 ? (
           /* Workstation Empty State (Anti-Slop Modern Islamic Scholar Desk) */
           <div className="flex flex-col items-center justify-center min-h-full text-center px-3 py-4 sm:px-4 sm:py-6 animate-fade-in max-w-2xl mx-auto">
