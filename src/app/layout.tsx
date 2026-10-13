@@ -40,21 +40,21 @@ export const metadata: Metadata = {
     siteName: "Asisten Kaji Kitab & Turats",
     images: [
       {
-        url: "/og-image.jpg",
-        width: 1280,
-        height: 720,
-        alt: "Asisten Kaji Kitab & Turats — Meja Telaah Turats & Penelusuran Sanad",
+        url: "/logo-dayah.png",
+        width: 800,
+        height: 800,
+        alt: "Logo Dayah Perbatasan Minhajussalam - Asisten Kaji Kitab & Turats",
       },
     ],
     locale: "id_ID",
     type: "website",
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Asisten Kaji Kitab & Turats",
     description:
       "Platform cerdas telaah literatur turats, rujukan sanad & matan kitab kuning pesantren, serta muraja'ah hafalan santri interaktif.",
-    images: ["/og-image.jpg"],
+    images: ["/logo-dayah.png"],
   },
 };
 
