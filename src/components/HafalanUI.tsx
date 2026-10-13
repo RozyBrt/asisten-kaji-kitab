@@ -15,6 +15,7 @@ function shuffleArray<T>(array: T[]): T[] {
 
 export default function HafalanUI() {
   const [isActive, setIsActive] = useState(false);
+  const [selectedCount, setSelectedCount] = useState<number>(5);
   const [questions, setQuestions] = useState<HafalanQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -23,8 +24,18 @@ export default function HafalanUI() {
   const [totalAnswered, setTotalAnswered] = useState(0);
   const [showResult, setShowResult] = useState(false);
 
-  const startSession = useCallback(() => {
-    const shuffled = shuffleArray(mockHafalanQuestions).slice(0, 5);
+  const startSession = useCallback((count?: number) => {
+    const targetCount = count ?? selectedCount;
+    // 1. Acak urutan pertanyaan
+    // 2. Ambil sejumlah targetCount
+    // 3. Acak posisi pilihan jawaban (A, B, C, D) sehingga posisi jawaban benar dinamis
+    const shuffled = shuffleArray(mockHafalanQuestions)
+      .slice(0, targetCount)
+      .map(q => ({
+        ...q,
+        options: q.options ? shuffleArray(q.options) : []
+      }));
+
     setQuestions(shuffled);
     setCurrentIndex(0);
     setSelectedAnswer(null);
@@ -33,7 +44,7 @@ export default function HafalanUI() {
     setTotalAnswered(0);
     setShowResult(false);
     setIsActive(true);
-  }, []);
+  }, [selectedCount]);
 
   const handleAnswer = (answer: string) => {
     if (isAnswered) return;
@@ -100,7 +111,10 @@ export default function HafalanUI() {
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
               <circle cx="70" cy="70" r="60" fill="none" stroke="#e2e8f0" strokeWidth="8" />
               <circle
-                cx="70" cy="70" r="60" fill="none"
+                cx="70"
+                cy="70"
+                r="60"
+                fill="none"
                 stroke={isExcellent ? '#047857' : isGood ? '#b45309' : '#e11d48'}
                 strokeWidth="8"
                 strokeLinecap="round"
@@ -116,11 +130,11 @@ export default function HafalanUI() {
 
           <div className="flex gap-2 justify-center">
             <button
-              onClick={startSession}
+              onClick={() => startSession(selectedCount)}
               className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl
                          font-semibold text-xs shadow-xs transition-colors"
             >
-              Ulangi Sesi
+              Ulangi Sesi ({selectedCount} Soal)
             </button>
             <button
               onClick={() => { setIsActive(false); setShowResult(false); }}
@@ -154,7 +168,7 @@ export default function HafalanUI() {
           </p>
 
           {/* Features */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5 mb-6 sm:mb-8 text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5 mb-5 sm:mb-6 text-left">
             {[
               { title: 'Sambung Ayat', desc: 'Melanjutkan ayat yang terpotong' },
               { title: 'Tebak Surah', desc: 'Identifikasi asal surah dari potongan ayat' },
@@ -170,12 +184,33 @@ export default function HafalanUI() {
             ))}
           </div>
 
+          {/* Pilihan Jumlah Soal */}
+          <div className="mb-5 sm:mb-6">
+            <p className="text-xs font-bold text-slate-700 mb-2">Pilih Jumlah Soal:</p>
+            <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 gap-1">
+              {[5, 10, mockHafalanQuestions.length].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setSelectedCount(num)}
+                  className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    selectedCount === num
+                      ? 'bg-emerald-800 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  }`}
+                >
+                  {num === mockHafalanQuestions.length ? `Semua (${num} Soal)` : `${num} Soal`}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button
             id="btn-start-hafalan"
-            onClick={startSession}
+            onClick={() => startSession(selectedCount)}
             className="w-full sm:w-auto px-6 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors"
           >
-            Mulai Sesi Muraja&apos;ah (5 Soal)
+            Mulai Sesi Muraja&apos;ah ({selectedCount} Soal)
           </button>
         </div>
       </div>
@@ -228,7 +263,7 @@ export default function HafalanUI() {
             </div>
           </div>
 
-          {/* Options (Kompak di HP) */}
+          {/* Options (Kompak di HP & Posisi Diacak Otomatis) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 mb-3 sm:mb-4">
             {currentQ.options?.map((option, idx) => {
               const isSelected = selectedAnswer === option;
