@@ -156,7 +156,14 @@ export async function POST(request: NextRequest) {
     // Helper untuk mengikat sitasi terverifikasi dari chunk naskah langsung (mencegah halusinasi nomor halaman AI)
     const bindVerifiedSources = (rawSources: any[]): KitabSource[] => {
       if (matchedChunks.length > 0) {
-        return matchedChunks.slice(0, 3).map(c => ({
+        const seenPages = new Set<number>();
+        const uniqueChunks = matchedChunks.filter(c => {
+          if (seenPages.has(c.pdfPage)) return false;
+          seenPages.add(c.pdfPage);
+          return true;
+        });
+
+        return uniqueChunks.slice(0, 3).map(c => ({
           kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
           bab: c.bab,
           halaman: `Hal. ${c.bookPage} (PDF Hal. ${c.pdfPage})`,
