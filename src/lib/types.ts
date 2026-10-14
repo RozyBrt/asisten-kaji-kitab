@@ -82,7 +82,7 @@ export interface ChatApiResponse {
   aiStatus?: AiProviderStatus;
 }
 
-export type ActiveModule = 'kaji-kitab' | 'hafalan' | 'upload';
+export type ActiveModule = 'kaji-kitab' | 'hafalan' | 'upload' | 'panduan';
 
 // ─── RAG Types ───────────────────────────────────────────────────────────────
 export interface RagDocument {

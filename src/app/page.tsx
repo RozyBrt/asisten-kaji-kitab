@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import ChatUI from '@/components/ChatUI';
 import HafalanUI from '@/components/HafalanUI';
 import UploadUI from '@/components/UploadUI';
+import PanduanDisclaimerUI from '@/components/PanduanDisclaimerUI';
 import ResearchModal from '@/components/ResearchModal';
 import { ActiveModule } from '@/lib/types';
 import type { AiProviderStatus } from '@/lib/ai-provider';
@@ -15,6 +16,7 @@ const moduleLabels: Record<ActiveModule, string> = {
   'kaji-kitab': 'Kaji Kitab & Turats (Rujukan Sanad & Matan)',
   'hafalan': "Muraja'ah Hafalan Al-Qur'an",
   'upload': 'Korpus Literatur Kitab (Knowledge Base RAG)',
+  'panduan': 'Panduan Sistem, Knowledge Base & Disclaimer',
 };
 
 export default function HomePage() {
@@ -72,6 +74,11 @@ export default function HomePage() {
           {activeModule === 'upload' && (
             <div className="h-full w-full flex-1 min-h-0 overflow-y-auto overscroll-contain">
               <UploadUI />
+            </div>
+          )}
+          {activeModule === 'panduan' && (
+            <div className="h-full w-full flex-1 min-h-0 overflow-y-auto overscroll-contain">
+              <PanduanDisclaimerUI />
             </div>
           )}
         </main>
