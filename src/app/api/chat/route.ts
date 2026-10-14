@@ -130,6 +130,102 @@ function normalizeSources(sources: any[]): KitabSource[] {
   });
 }
 
+
+// Kamus Matan Muktamad Naskah Al-Kawakib / Mutammimah Al-Jurumiyyah
+// Mencegah distorsi/halusinasi lafazh Arab akibat fragmentasi karakter bidi RTL pada PDF
+const CANONICAL_MATANS: Array<{ keywords: string[]; matan: string }> = [
+  {
+    keywords: ['badal'],
+    matan: 'اَلْبَدَلُ هُوَ : اَلتَّابِعُ الْمَقْصُودُ بِالْحُكْمِ بِلَا وَاسِطَةٍ .',
+  },
+  {
+    keywords: ['muthlaq', 'mashdar'],
+    matan: 'اَلْمَفْعُولُ الْمُطْلَقُ هُوَ : اَلْمَصْدَرُ الْفَضْلَةُ الْمُؤَكِّدُ لِعَامِلِهِ أَوْ الْمُبَيِّنُ لِنَوْعِهِ أَوْ عَدَدِهِ .',
+  },
+  {
+    keywords: ['fail', "fa'il"],
+    matan: 'اَلْفَاعِلُ هُوَ : اَلِاسْمُ الْمَرْفُوعُ الْمَذْكُورُ قَبْلَهُ فِعْلُهُ أَوْ مَا فِي تَأْوِيلِ الْفِعْلِ .',
+  },
+  {
+    keywords: ['naib', "na'ib", 'naibul fail', "na'ibul fa'il"],
+    matan: 'اَلْمَفْعُولُ الَّذِي لَمْ يُسَمَّ فَاعِلُهُ هُوَ : اَلِاسْمُ الْمَرْفُوعُ الَّذِي لَمْ يُذْكَرْ مَعَهُ فَاعِلُهُ .',
+  },
+  {
+    keywords: ['mubtada', 'khabar'],
+    matan: 'اَلْمُبْتَدَأُ هُوَ : اَلِاسْمُ الْمَرْفُوعُ الْعَارِي عَنِ الْعَوَامِلِ اللَّفْظِيَّةِ ، وَالْخَبَرُ هُوَ : اَلِاسْمُ الْمَرْفُوعُ الْمُسْنَدُ إِلَيْهِ .',
+  },
+  {
+    keywords: ['mustatsna', 'mustatna', 'istitsna'],
+    matan: 'اَلْمُسْتَثْنَى هُوَ : اَلِاسْمُ الْمَنْصُوبُ الْوَاقِعُ بَعْدَ إِلَّا أَوْ إِحْدَى أَخَوَاتِهَا مُخَالِفًا لِمَا قَبْلَهَا .',
+  },
+  {
+    keywords: ['munada', 'nida'],
+    matan: 'اَلْمُنَادَى هُوَ : الْمَطْلُوبُ إِقْبَالُهُ بِـ يَا أَوْ إِحْدَى أَخَوَاتِهَا .',
+  },
+  {
+    keywords: ['tamyiz'],
+    matan: 'اَلتَّمْيِيزُ هُوَ : اَلِاسْمُ الْمَنْصُوبُ الْمُفَسِّرُ لِمَا انْبَهَمَ مِنَ الذَّوَاتِ أَوِ النِّسَبِ .',
+  },
+  {
+    keywords: ['hal', 'haal'],
+    matan: 'اَلْحَالُ هُوَ : اَلِاسْمُ الْمَنْصُوبُ الْمُفَسِّرُ لِمَا انْبَهَمَ مِنَ الْهَيْئَاتِ .',
+  },
+  {
+    keywords: ['kalam'],
+    matan: 'اَلْكَلَامُ هُوَ : اللَّفْظُ الْمُرَكَّبُ الْمُفِيدُ بِالْوَضْعِ ، وَأَقْسَامُهُ ثَلَاثَةٌ : اسْمٌ ، وَفِعْلٌ ، وَحَرْفٌ جَاءَ لِمَعْنًى .',
+  },
+  {
+    keywords: ['irab', "i'rab"],
+    matan: 'اَلْإِعْرَابُ هُوَ : تَغْيِيرُ أَوَاخِرِ الْكَلِمِ لِاخْتِلَافِ الْعَوَامِلِ الدَّاخِلَةِ عَلَيْهَا لَفْظًا أَوْ تَقْدِيرًا .',
+  },
+  {
+    keywords: ['maful bih', 'bih'],
+    matan: 'اَلْمَفْعُولُ بِهِ هُوَ : اَلِاسْمُ الْمَنْصُوبُ الَّذِي يَقَعُ بِهِ الْفِعْلُ .',
+  },
+  {
+    keywords: ['zharaf', 'dzaraf', 'maful fih'],
+    matan: 'ظَرْفُ الزَّمَانِ هُوَ اسْمُ الزَّمَانِ الْمَنْصُوبُ بِتَقْدِيرِ فِي ، وَظَرْفُ الْمَكَانِ هُوَ اسْمُ الْمَكَانِ الْمَنْصُوبُ بِتَقْدِيرِ فِي .',
+  },
+  {
+    keywords: ['liajlih', 'li ajlih'],
+    matan: 'اَلْمَفْعُولُ لِأَجْلِهِ هُوَ : اَلِاسْمُ الْمَنْصُوبُ الَّذِي يُذْكَرُ بَيَانًا لِسَبَبِ وُقُوعِ الْفِعْلِ .',
+  },
+  {
+    keywords: ['maah', "ma'ah"],
+    matan: 'اَلْمَفْعُولُ مَعَهُ هُوَ : اَلِاسْمُ الْمَنْصُوبُ الْمَذْكُورُ لِبَيَانِ مَنْ فُعِلَ مَعَهُ الْفِعْلُ .',
+  },
+  {
+    keywords: ['naat', "na'at", 'sifat'],
+    matan: 'اَلنَّعْتُ هُوَ : اَلتَّابِعُ الْمُشْتَقُّ أَوِ الْمُؤَوَّلُ بِالْمُشْتَقِّ الْمُوَضِّحُ لِمَتْبُوعِهِ فِي الْمَعَارِفِ وَالْمُخَصِّصُ لَهُ فِي النَّكِرَاتِ .',
+  },
+  {
+    keywords: ['taukid'],
+    matan: 'اَلتَّوْكِيدُ هُوَ : اَلتَّابِعُ لِلْمُؤَكَّدِ فِي رَفْعِهِ وَنَصْبِهِ وَخَفْضِهِ وَتَعْرِيفِهِ .',
+  },
+  {
+    keywords: ['athaf', "'athaf"],
+    matan: 'حُرُوفُ الْعَطْفِ عَشَرَةٌ ، وَهِيَ : الْوَاوُ ، وَالْفَاءُ ، وَثُمَّ ، وَأَوْ ، وَأَمْ ، وَإِمَّا ، وَبَلْ ، وَلَا ، وَلَكِنْ ، وَحَتَّى فِي بَعْضِ الْمَوَاضِعِ .',
+  },
+  {
+    keywords: ['sharaf', 'munsharif', 'ghairu munsharif'],
+    matan: 'اَلْمَمْنُوعُ مِنَ الصَّرْفِ هُوَ : مَا فِيهِ عِلَّتَانِ فَرْعِيَّتَانِ مِنْ تِسْعِ عِلَلٍ أَوْ وَاحِدَةٌ تَقُومُ مَقَامَهُمَا .',
+  },
+];
+
+function findCanonicalMatan(query: string, bab: string): string | null {
+  const text = (query + ' ' + bab).toLowerCase().replace(/['\u2019\u2018`]/g, '');
+  for (const item of CANONICAL_MATANS) {
+    for (const kw of item.keywords) {
+      const cleanKw = kw.replace(/['\u2019\u2018`]/g, '');
+      const re = new RegExp('\\b' + cleanKw + '\\b', 'i');
+      if (re.test(text)) {
+        return item.matan;
+      }
+    }
+  }
+  return null;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as ChatApiRequest;
@@ -155,7 +251,13 @@ export async function POST(request: NextRequest) {
       try {
         matchedChunks = await searchKawakibChunks(message, 4);
         if (matchedChunks.length > 0) {
+          const canonicalMatan = findCanonicalMatan(message, matchedChunks[0]?.bab || '');
+          const matanNotice = canonicalMatan
+            ? `\n=== TEKS MATAN ASLI MUKTAMAD (WAJIB SALIN PERSIS DI PROPERTI "arabicText" TANPA MENGURANGI/MENAMBAH KATA): ===\n${canonicalMatan}\n\n`
+            : '';
+
           ragContext = '\n=== KONTEKS NASKAH KITAB AL-KAWAKIB AL-DURRIYYAH (284 HALAMAN) ===\n' +
+            matanNotice +
             matchedChunks.map(c => c.text).join('\n\n---\n\n') +
             '\n=== AKHIR KONTEKS NASKAH ===\n';
         }

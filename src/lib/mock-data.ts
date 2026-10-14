@@ -83,6 +83,33 @@ const kawakibMockResponses: Record<string, ChatApiResponse> = {
       },
     ],
   },
+  'badal': {
+    reply: `**Definisi dan Ketentuan Badal** menurut naskah **Al-Kawakib Ad-Durriyyah Syarah Mutammimah Al-Jurumiyyah**:\n\nSecara bahasa, badal bermakna *'iwadh* (pengganti). Sedangkan secara istilah ulama nahwu, badal adalah:\n\n> *Tabi' (kata pengikut) yang dimaksudkan dengan pensandaran hukum secara langsung/pokok tanpa adanya perantaraan huruf antara badal dan mathbu'nya.*\n\n**Empat Macam Pembagian Badal (Hal. 243-247):**\n1. **Badal Kull min Kull / Badal Syai' min Syai' (بَدَلُ الْكُلِّ مِنَ الْكُلِّ):** Badal yang sama persis dengan madlul mathbu'nya. Contoh: جَاءَ زَيْدٌ أَخُوكَ (Zaid telah datang, yaitu saudaramu).\n2. **Badal Ba'dh min Kull (بَدَلُ الْبَعْضِ مِنَ الْكُلِّ):** Badal yang merupakan bagian/pecahan dari mathbu'nya (wajib memiliki dhamir yang kembali kepada mathbu'). Contoh: أَكَلْتُ الرَّغِيفَ ثُلُثَهُ (Aku memakan roti itu sepertiganya).\n3. **Badal Isytimal (بَدَلُ الِاشْتِمَالِ):** Badal yang memiliki keterkaitan makna dengan mathbu'nya namun bukan merupakan juz/bagian fisiknya (juga wajib ber-dhamir). Contoh: نَفَعَنِي زَيْدٌ عِلْمُهُ (Zaid memberi manfaat kepadaku, yaitu ilmunya).\n4. **Badal Ghalath (بَدَلُ الْغَلَطِ / الْبَدَاءِ / النِّسْيَانِ):** Penggantian karena salah ucap yang segera diralat. Contoh: رَأَيْتُ زَيْدًا الْفَرَسَ (Aku melihat Zaid, eh kudanya).`,
+    arabicText: `اَلْبَدَلُ هُوَ : اَلتَّابِعُ الْمَقْصُودُ بِالْحُكْمِ بِلَا وَاسِطَةٍ .`,
+    sources: [
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: "Bab Badal (Badal Kull min Kull, Ba'dh min Kull, Isytimal, Ghalath)",
+        halaman: 'Hal. 242 (PDF Hal. 254)',
+        pdfPage: 254,
+        pdfUrl: '/api/pdf#page=254',
+      },
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: "Bab Badal (Badal Kull min Kull, Ba'dh min Kull, Isytimal, Ghalath)",
+        halaman: 'Hal. 243 (PDF Hal. 255)',
+        pdfPage: 255,
+        pdfUrl: '/api/pdf#page=255',
+      },
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: "Bab Badal (Badal Kull min Kull, Ba'dh min Kull, Isytimal, Ghalath)",
+        halaman: 'Hal. 244 (PDF Hal. 256)',
+        pdfPage: 256,
+        pdfUrl: '/api/pdf#page=256',
+      },
+    ],
+  },
   'muthlaq': {
     reply: `**Definisi dan Ketentuan Maf'ul Muthlaq (Al-Mashdar)** menurut naskah **Al-Kawakib Ad-Durriyyah Syarah Mutammimah Al-Jurumiyyah**:\n\nMaf'ul Muthlaq adalah mashdar yang berstatus fadh-lah (pelengkap yang bukan penopang pokok kalimat seperti musnad-musnad ilaih) yang berfungsi untuk menguatkan amilnya, menerangkan jenisnya (macam amil), atau menerangkan bilangannya.\n\n**Tiga Fungsi Pokok Maf'ul Muthlaq:**\n1. **Al-Mu'akkid li 'Amilihi (Penguat Amil / Taukidi):** Contoh: ضَرَبْتُ ضَرْبًا (Aku benar-benar memukul).\n2. **Al-Mubayyin li Nau'ihi (Penjelas Macam Amil / Naw'i):** Contoh: جَلَسْتُ جُلُوسَ الْقَارِئِ (Aku duduk seperti duduknya seorang qari).\n3. **Al-Mubayyin li 'Adadihi (Penjelas Bilangan Amil / 'Adadi):** Contoh: ضَرَبْتُ زَيْدًا ضَرْبَتَيْنِ (Aku memukul Zaid dua kali pukulan).\n\n**Dua Pembagian Lafazh Mashdar:**\n1. **Lafzhi:** Jika lafazh mashdar bersesuaian dengan lafazh fi'il amilnya, seperti: قَتَلْتُهُ قَتْلًا.\n2. **Ma'nawi:** Jika mashdar bersesuaian dengan makna fi'ilnya tetapi berbeda lafazhnya, seperti: جَلَسْتُ قُعُودًا.`,
     arabicText: `اَلْمَفْعُولُ الْمُطْلَقُ هُوَ : اَلْمَصْدَرُ الْفَضْلَةُ الْمُؤَكِّدُ لِعَامِلِهِ أَوْ الْمُبَيِّنُ لِنَوْعِهِ أَوْ عَدَدِهِ .`,
