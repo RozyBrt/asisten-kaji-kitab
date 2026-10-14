@@ -109,11 +109,16 @@ const NAHWU_STOPWORDS = new Set([
   'adalah', 'mohon', 'maksud', 'dari', 'pada', 'yang', 'dalam', 'dan', 'atau', 'seperti',
   'merupakan', 'secara', 'menurut', 'kitab', 'bisa', 'kah', 'apakah', 'pengertian',
   'definisi', 'makna', 'arti', 'hukum', 'kaidah', 'contoh', 'kepada', 'kepadaku', 'ku',
-  'saya', 'kami', 'anda', 'dong', 'ya', 'tanya', 'ingin', 'tahu', 'dia'
+  'saya', 'kami', 'anda', 'dong', 'ya', 'tanya', 'ingin', 'tahu', 'tau', 'mau', 'dia',
+  'sih', 'nih', 'kan', 'tuh', 'lah', 'pun', 'coba', 'akan', 'kasih', 'beri'
 ]);
 
 // Kamus sinonim & variasi ejaan fonetik santri untuk istilah-istilah Nahwu klasik
 const NAHWU_VARIANTS: Record<string, string[]> = {
+  // Pertanyaan Umum Ilmu Nahwu -> Arahkan ke Bab Kalam / Pembahasan Kaidah Pokok
+  'nahwu': ['kalam', 'pembahasan kalam'],
+  'ilmu': ['nahwu', 'kalam'],
+
   // Istitsna' & Mustatsna
   'mustatna': ['mustatsna', 'istitsna'],
   'mustasna': ['mustatsna', 'istitsna'],
@@ -242,6 +247,13 @@ function normalizeNahwuText(str: string): string {
 }
 
 /** Hitung skor relevansi leksikal berbobot tinggi untuk naskah Al-Kawakib */
+function wordBoundaryMatch(target: string, token: string): boolean {
+  if (!target || !token) return false;
+  // Gunakan word boundary regex agar kata pendek 'tau' TIDAK PERNAH mencocokkan 'taukid'
+  const re = new RegExp('\\b' + token + '\\b', 'i');
+  return re.test(target);
+}
+
 function calculateLexicalScore(query: string, chunk: KawakibChunk): number {
   const normQuery = normalizeNahwuText(query);
   const rawTokens = normQuery.split(/\s+/).filter(t => t.length >= 2);
@@ -267,27 +279,27 @@ function calculateLexicalScore(query: string, chunk: KawakibChunk): number {
   let score = 0;
 
   for (const token of tokens) {
-    // 1. Bobot sangat tinggi jika kata kunci ada dalam nama Bab/Fasal
-    if (babNorm.includes(token)) {
-      score += 25;
+    // 1. Bobot sangat tinggi jika kata kunci ada dalam nama Bab/Fasal (DENGAN BATAS KATA)
+    if (wordBoundaryMatch(babNorm, token)) {
+      score += 30;
       // Bonus jika diawali 'bab [token]' atau 'fasal [token]'
       if (babNorm.includes('bab ' + token) || babNorm.includes('fasal ' + token)) {
         score += 20;
       }
     }
 
-    // 2. Bobot kemunculan dalam isi teks naskah
-    if (textNorm.includes(token)) {
+    // 2. Bobot kemunculan dalam isi teks naskah (DENGAN BATAS KATA)
+    if (wordBoundaryMatch(textNorm, token)) {
       score += 3;
       // Hitung frekuensi kemunculan (dibatasi agar tidak bias)
-      const count = textNorm.split(token).length - 1;
+      const count = (textNorm.match(new RegExp('\\b' + token + '\\b', 'gi')) || []).length;
       score += Math.min(count * 0.8, 12);
     }
   }
 
   // 3. Bonus prioritas jika chunk memuat pembuka bab/definisi utama
-  if (chunk.text.includes('بَاب') || chunk.text.includes('Bab Tentang') || chunk.text.includes('Definisi')) {
-    score += 15;
+  if (chunk.text.includes('بَاب') || chunk.text.includes('Bab Tentang') || chunk.text.includes('Definisi') || chunk.text.includes('Pengertian')) {
+    score += 10;
   }
 
   return score;
