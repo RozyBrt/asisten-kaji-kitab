@@ -51,14 +51,14 @@ export default function Header({ onMenuToggle, activeModuleLabel, onOpenResearch
     : 'AI Siap';
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-xs flex-shrink-0">
-      <div className="flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 lg:px-6 max-w-7xl mx-auto w-full gap-2">
+    <header className="sticky top-0 z-30 w-full bg-[#FAF8F4] border-b border-[#E5DFD3] shadow-2xs flex-shrink-0">
+      <div className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 lg:px-6 max-w-7xl mx-auto w-full gap-2">
         {/* Left: Mobile menu + Title */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <button
             id="mobile-menu-toggle"
             onClick={onMenuToggle}
-            className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100 text-slate-700 transition-colors flex-shrink-0"
+            className="lg:hidden p-1.5 rounded-lg hover:bg-[#EBE5D8] text-stone-700 transition-colors flex-shrink-0"
             aria-label="Buka menu navigasi"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -68,20 +68,20 @@ export default function Header({ onMenuToggle, activeModuleLabel, onOpenResearch
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <h1 className="text-sm sm:text-base lg:text-lg font-bold text-slate-900 tracking-tight truncate leading-tight">
+              <h1 className="text-sm sm:text-base lg:text-lg font-bold text-stone-900 font-serif tracking-tight truncate leading-tight">
                 <span className="sm:hidden">Asisten Turats</span>
                 <span className="hidden sm:inline">Asisten Kaji Kitab &amp; Turats</span>
               </h1>
-              <span className="hidden md:inline-flex items-center px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-semibold rounded-md">
+              <span className="hidden md:inline-flex items-center px-2 py-0.5 bg-[#8B1E24]/10 border border-[#8B1E24]/20 text-[#8B1E24] text-[10px] font-semibold rounded-md uppercase tracking-wider">
                 Karya Ilmiah
               </span>
             </div>
             <div className="flex items-center gap-x-2 mt-0.5 min-w-0">
-              <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate max-w-[180px] sm:max-w-none">
+              <span className="text-[10px] sm:text-[11px] text-stone-600 font-medium truncate max-w-[180px] sm:max-w-none">
                 {activeModuleLabel}
               </span>
-              <span className="text-slate-300 text-xs hidden lg:inline">&bull;</span>
-              <span className="text-[11px] text-slate-500 hidden lg:inline">Rujukan Intisari Al-Kawakib (284 Halaman)</span>
+              <span className="text-stone-400 text-xs hidden lg:inline">&bull;</span>
+              <span className="text-[11px] text-stone-500 hidden lg:inline">Rujukan Intisari Al-Kawakib (284 Halaman)</span>
             </div>
           </div>
         </div>
@@ -91,11 +91,11 @@ export default function Header({ onMenuToggle, activeModuleLabel, onOpenResearch
           <button
             id="btn-open-research-info"
             onClick={onOpenResearchModal}
-            className="flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 text-slate-700 hover:text-emerald-900 rounded-lg text-xs font-semibold transition-all shadow-xs"
+            className="flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 bg-white border border-[#E5DFD3] hover:border-[#C5A059] hover:bg-[#FAF6ED] text-stone-700 hover:text-stone-900 rounded-lg text-xs font-semibold transition-all shadow-2xs"
             title="Lihat Arsitektur Sistem & Dasar Ilmiah"
             aria-label="Lihat Arsitektur Sistem & Dasar Ilmiah"
           >
-            <svg className="w-4 h-4 text-emerald-800 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+            <svg className="w-4 h-4 text-[#164E3B] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
             </svg>
             <span className="hidden md:inline">Arsitektur &amp; Riset</span>

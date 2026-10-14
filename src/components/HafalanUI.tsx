@@ -152,17 +152,17 @@ export default function HafalanUI() {
   // --- Welcome / Start Screen ---
   if (!isActive) {
     return (
-      <div className="flex items-center justify-center min-h-full p-4 sm:p-6 animate-fade-in pb-16">
+      <div className="flex items-center justify-center min-h-full p-4 sm:p-6 animate-fade-in pb-16 bg-[#FAF7F2]">
         <div className="max-w-lg w-full text-center">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-2xl bg-emerald-800 text-amber-200 border border-emerald-900/30 flex items-center justify-center mb-4 sm:mb-5 shadow-xs">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-2xl bg-[#164E3B] text-[#E8D7B0] border border-[#164E3B]/30 flex items-center justify-center mb-4 sm:mb-5 shadow-2xs">
             <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
             </svg>
           </div>
-          <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-1.5 sm:mb-2 tracking-tight">
+          <h2 className="text-lg sm:text-xl font-bold text-stone-900 font-serif mb-1.5 sm:mb-2 tracking-tight">
             Muraja&apos;ah &amp; Simulasi Hafalan Al-Qur&apos;an
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mb-5 sm:mb-7 leading-relaxed">
+          <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto mb-5 sm:mb-7 leading-relaxed">
             Perkuat ingatan hafalan ayat dengan evaluasi interaktif sambung ayat, tebak nama surah, 
             dan pelengkap lafal matan ayat Al-Qur&apos;an.
           </p>
@@ -174,20 +174,20 @@ export default function HafalanUI() {
               { title: 'Tebak Surah', desc: 'Identifikasi asal surah dari potongan ayat' },
               { title: 'Isi Lanjutan', desc: 'Melengkapi kata yang terlewatkan' },
             ].map((feature, idx) => (
-              <div key={idx} className="p-3 sm:p-3.5 bg-white border border-slate-200 rounded-xl shadow-xs">
-                <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide block mb-0.5">
+              <div key={idx} className="p-3 sm:p-3.5 bg-white border border-[#E5DFD3] rounded-xl shadow-2xs">
+                <span className="text-[10px] font-bold text-[#164E3B] uppercase tracking-wide block mb-0.5">
                   Modul 0{idx + 1}
                 </span>
-                <p className="text-xs font-bold text-slate-900 mb-0.5">{feature.title}</p>
-                <p className="text-[11px] text-slate-500 leading-snug">{feature.desc}</p>
+                <p className="text-xs font-bold text-stone-900 mb-0.5">{feature.title}</p>
+                <p className="text-[11px] text-stone-500 leading-snug">{feature.desc}</p>
               </div>
             ))}
           </div>
 
           {/* Pilihan Jumlah Soal */}
           <div className="mb-5 sm:mb-6">
-            <p className="text-xs font-bold text-slate-700 mb-2">Pilih Jumlah Soal:</p>
-            <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 gap-1">
+            <p className="text-xs font-bold text-stone-700 mb-2">Pilih Jumlah Soal:</p>
+            <div className="inline-flex p-1 bg-[#FAF8F4] rounded-xl border border-[#E5DFD3] gap-1">
               {[5, 10, mockHafalanQuestions.length].map((num) => (
                 <button
                   key={num}
@@ -195,8 +195,8 @@ export default function HafalanUI() {
                   onClick={() => setSelectedCount(num)}
                   className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     selectedCount === num
-                      ? 'bg-emerald-800 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      ? 'bg-[#164E3B] text-white shadow-2xs'
+                      : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                   }`}
                 >
                   {num === mockHafalanQuestions.length ? `Semua (${num} Soal)` : `${num} Soal`}
@@ -208,7 +208,7 @@ export default function HafalanUI() {
           <button
             id="btn-start-hafalan"
             onClick={() => startSession(selectedCount)}
-            className="w-full sm:w-auto px-6 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors"
+            className="w-full sm:w-auto px-6 py-2.5 bg-[#164E3B] hover:bg-[#123E2F] text-[#FAF6EE] font-semibold text-xs rounded-xl shadow-2xs transition-colors"
           >
             Mulai Sesi Muraja&apos;ah ({selectedCount} Soal)
           </button>
@@ -219,22 +219,22 @@ export default function HafalanUI() {
 
   // --- Quiz Question Screen ---
   return (
-    <div className="min-h-full w-full flex flex-col p-3 sm:p-4 lg:p-6 pb-20">
+    <div className="min-h-full w-full flex flex-col p-3 sm:p-4 lg:p-6 pb-20 bg-[#FAF7F2]">
       {/* Progress Bar */}
       <div className="mb-4 sm:mb-6 animate-fade-in max-w-2xl mx-auto w-full">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-bold text-slate-600">
+          <span className="text-xs font-bold text-stone-600">
             Soal {currentIndex + 1} dari {questions.length}
           </span>
           <div className="flex items-center gap-2 text-xs">
-            <span className="font-semibold text-emerald-700">Benar: {score}</span>
-            <span className="text-slate-300">|</span>
-            <span className="font-semibold text-slate-500">Salah: {totalAnswered - score}</span>
+            <span className="font-semibold text-[#164E3B]">Benar: {score}</span>
+            <span className="text-stone-300">|</span>
+            <span className="font-semibold text-stone-500">Salah: {totalAnswered - score}</span>
           </div>
         </div>
-        <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-[#E5DFD3] rounded-full overflow-hidden">
           <div
-            className="h-full bg-emerald-700 rounded-full transition-all duration-300"
+            className="h-full bg-[#164E3B] rounded-full transition-all duration-300"
             style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
           />
         </div>
@@ -245,19 +245,19 @@ export default function HafalanUI() {
         <div className="w-full animate-slide-up" key={currentQ.id}>
           {/* Type Badge */}
           <div className="flex items-center gap-2 mb-2 sm:mb-3">
-            <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-md uppercase tracking-wider border border-slate-200">
+            <span className="px-2 py-0.5 bg-white text-stone-700 text-[10px] font-bold rounded-md uppercase tracking-wider border border-[#E5DFD3]">
               {currentQ.type === 'sambung-ayat' ? 'Sambung Ayat' : currentQ.type === 'tebak-surah' ? 'Tebak Surah' : 'Isi Lanjutan'}
             </span>
-            <span className="text-[11px] sm:text-xs text-slate-500">
+            <span className="text-[11px] sm:text-xs text-stone-500">
               Surah {currentQ.surahName} &bull; {currentQ.ayahRange}
             </span>
           </div>
 
           {/* Question */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-5 mb-3 sm:mb-4 shadow-xs">
-            <p className="text-xs text-slate-600 mb-2 sm:mb-3">{currentQ.questionId}</p>
-            <div className="verse-highlight bg-amber-50/40 border border-amber-200/80 rounded-xl p-3 sm:p-4">
-              <p className="arabic-text text-lg sm:text-2xl text-slate-900 font-bold leading-loose text-right font-serif">
+          <div className="bg-white border border-[#E5DFD3] rounded-2xl p-3.5 sm:p-5 mb-3 sm:mb-4 shadow-2xs">
+            <p className="text-xs text-stone-600 mb-2 sm:mb-3">{currentQ.questionId}</p>
+            <div className="bg-[#FAF6ED] border border-[#E7DFC6] rounded-xl p-3 sm:p-4">
+              <p className="arabic-text text-lg sm:text-2xl text-stone-900 font-bold leading-loose text-right font-serif">
                 {currentQ.questionAr}
               </p>
             </div>

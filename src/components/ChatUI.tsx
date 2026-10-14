@@ -13,39 +13,39 @@ function generateId() {
   return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-// Source citation card (Rujukan Kitab dengan Akses PDF Interaktif)
+// Source citation card (Rujukan Kitab dengan Akses PDF Interaktif - Gaya Hasyiyah)
 function SourceCard({ source }: { source: KitabSource }) {
   const pdfUrl = source.pdfUrl || (source.pdfPage ? `/api/pdf#page=${source.pdfPage}` : '/api/pdf#page=13');
 
   return (
-    <div className="flex flex-col gap-2 p-2.5 sm:p-3 bg-emerald-50/90 border border-emerald-200/90 rounded-xl hover:border-emerald-300 transition-all shadow-2xs">
+    <div className="flex flex-col gap-2 p-3 bg-[#FAF8F3] border border-[#E7DFC6] rounded-xl hover:border-[#C5A059] transition-all shadow-2xs">
       <div className="flex items-start gap-2.5">
-        <div className="p-1.5 bg-emerald-800 text-amber-200 rounded-lg flex-shrink-0 mt-0.5">
+        <div className="p-1.5 bg-[#164E3B] text-[#FAF6EE] rounded-lg flex-shrink-0 mt-0.5 shadow-2xs">
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
           </svg>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-emerald-950 truncate">{source.kitabName}</p>
-          <p className="text-[11px] text-emerald-800 leading-snug">{source.bab}</p>
+          <p className="text-xs font-bold text-stone-900 font-serif truncate">{source.kitabName}</p>
+          <p className="text-[11px] text-[#8B1E24] font-medium leading-snug">{source.bab}</p>
           {source.halaman && source.halaman !== '-' && source.halaman !== 'Estimasi' && (
-            <p className="text-[10px] text-slate-600 mt-0.5 font-medium">
-              Rujukan Naskah: <span className="font-semibold text-emerald-900">{source.halaman}</span>
+            <p className="text-[10px] text-stone-600 mt-0.5 font-medium">
+              Rujukan Naskah: <span className="font-semibold text-[#164E3B]">{source.halaman}</span>
             </p>
           )}
         </div>
       </div>
 
       {/* Tombol Aksi Verifikasi Naskah: Buka Halaman & Unduh PDF */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-emerald-200/70">
+      <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-[#E7DFC6]">
         <a
           href={pdfUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-800 hover:bg-emerald-900 text-amber-100 rounded-lg text-[10px] sm:text-[11px] font-semibold transition-colors shadow-2xs"
+          className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#164E3B] hover:bg-[#123E2F] text-[#FAF6EE] rounded-lg text-[10px] sm:text-[11px] font-semibold transition-colors shadow-2xs"
           title="Buka naskah kitab tepat di halaman rujukan ini"
         >
-          <svg className="w-3 h-3 text-amber-200 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+          <svg className="w-3 h-3 text-[#C5A059] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.5V10.5M13.5 6l6 6m0 0-6 6m6-6H9" />
           </svg>
           <span>Buka Halaman Rujukan</span>
@@ -53,10 +53,10 @@ function SourceCard({ source }: { source: KitabSource }) {
 
         <a
           href="/api/pdf?download=1"
-          className="inline-flex items-center gap-1 px-2 py-1 bg-white hover:bg-emerald-100/60 text-emerald-800 border border-emerald-300 rounded-lg text-[10px] sm:text-[11px] font-medium transition-colors"
+          className="inline-flex items-center gap-1 px-2 py-1 bg-white hover:bg-stone-50 text-stone-700 border border-[#E2DDD3] rounded-lg text-[10px] sm:text-[11px] font-medium transition-colors"
           title="Unduh seluruh file PDF Intisari Kitab Al-Kawakib Al-Durriyyah (284 Halaman)"
         >
-          <svg className="w-3 h-3 text-emerald-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+          <svg className="w-3 h-3 text-[#164E3B] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.5V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
           </svg>
           <span>Unduh PDF</span>
@@ -255,10 +255,10 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 
         {/* Text bubble */}
         <div className={`
-          px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl shadow-xs relative
+          px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl shadow-2xs relative
           ${isUser
-            ? 'bg-emerald-800 text-white rounded-tr-xs'
-            : 'bg-white border border-slate-200 text-slate-800 rounded-tl-xs'
+            ? 'bg-[#164E3B] text-white rounded-tr-xs'
+            : 'bg-white border border-[#E5DFD3] text-stone-800 rounded-tl-xs'
           }
         `}>
           <div className="text-xs sm:text-sm leading-relaxed prose-chat"
@@ -269,10 +269,10 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 
           {/* Action buttons (Bot response) */}
           {!isUser && (
-            <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center gap-3">
+            <div className="mt-2 pt-1.5 border-t border-[#EBE5D8] flex items-center gap-3">
               <button
                 onClick={handleCopy}
-                className="text-[10px] sm:text-[11px] text-slate-500 hover:text-emerald-800 transition-colors flex items-center gap-1 font-medium"
+                className="text-[10px] sm:text-[11px] text-stone-500 hover:text-[#164E3B] transition-colors flex items-center gap-1 font-medium"
                 title="Salin isi jawaban"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
@@ -283,7 +283,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 
               <button
                 onClick={handleDownloadPdf}
-                className="text-[10px] sm:text-[11px] text-slate-500 hover:text-emerald-800 transition-colors flex items-center gap-1 font-medium"
+                className="text-[10px] sm:text-[11px] text-stone-500 hover:text-[#164E3B] transition-colors flex items-center gap-1 font-medium"
                 title="Unduh jawaban ini dalam format PDF"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
@@ -296,23 +296,20 @@ function ChatBubble({ message }: { message: ChatMessage }) {
         </div>
 
         {!isUser && message.isOcr && (
-          <span className="inline-flex text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200">
+          <span className="inline-flex text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200">
             Hasil OCR Naskah
           </span>
         )}
 
-        {/* Arabic text block */}
+        {/* Arabic text block (Gaya Manuskrip Kanonikal) */}
         {!isUser && message.arabicText && (
-          <div className="verse-highlight bg-amber-50/40 border border-amber-200/80 rounded-xl p-3 sm:p-3.5">
+          <div className="bg-[#FAF6ED] border border-[#E7DFC6] rounded-xl p-3.5 sm:p-4 shadow-2xs">
             <div className="flex items-center gap-1.5 mb-2">
-              <svg className="w-3.5 h-3.5 text-emerald-800" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" />
-              </svg>
-              <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider">
-                Matan Arab / Teks Nash
+              <span className="text-[10px] font-bold text-[#8B1E24] uppercase tracking-wider">
+                ✤ Matan Arab / Teks Nash Kanonikal
               </span>
             </div>
-            <p className="arabic-text text-slate-900 leading-loose text-right text-base sm:text-xl font-serif">
+            <p className="arabic-text text-stone-900 leading-loose text-right text-base sm:text-xl font-serif">
               {message.arabicText}
             </p>
           </div>
@@ -601,11 +598,11 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/50">
+    <div className="flex flex-col h-full bg-[#FAF7F2]">
       {/* Top action bar when in conversation */}
       {messages.length > 0 && (
-        <div className="px-3 py-1.5 sm:px-4 sm:py-2 border-b border-slate-200 bg-white flex flex-wrap items-center justify-between gap-2">
-          <span className="text-[11px] sm:text-xs text-slate-600 font-medium">
+        <div className="px-3 py-1.5 sm:px-4 sm:py-2 border-b border-[#E5DFD3] bg-[#FAF8F4] flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
+          <span className="text-[11px] sm:text-xs text-stone-600 font-medium">
             Kajian Aktif ({messages.length} pesan)
           </span>
           <div className="flex items-center gap-2">
@@ -613,10 +610,10 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
               type="button"
               onClick={handleDownloadFullChatPdf}
               disabled={isExportingPdf}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors shadow-2xs disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-[#164E3B] bg-[#164E3B]/8 hover:bg-[#164E3B]/15 border border-[#164E3B]/20 rounded-lg transition-colors shadow-2xs disabled:opacity-60"
               title="Unduh seluruh sesi percakapan kajian ini sebagai satu dokumen PDF lengkap"
             >
-              <svg className="w-3.5 h-3.5 text-emerald-700" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <svg className="w-3.5 h-3.5 text-[#164E3B]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.5V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
               <span>{isExportingPdf ? 'Menyusun PDF...' : 'Unduh Seluruh Percakapan (PDF)'}</span>
@@ -625,7 +622,7 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
               type="button"
               onClick={clearChat}
               aria-label="Bersihkan ruang telaah"
-              className="text-[11px] sm:text-xs text-slate-500 hover:text-rose-600 transition-colors px-2 py-1 rounded hover:bg-slate-50"
+              className="text-[11px] sm:text-xs text-stone-500 hover:text-[#8B1E24] transition-colors px-2 py-1 rounded hover:bg-stone-100"
             >
               Bersihkan
             </button>
@@ -639,42 +636,42 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
           /* Workstation Empty State (Anti-Slop Modern Islamic Scholar Desk) */
           <div className="flex flex-col items-center justify-center min-h-full text-center px-3 py-4 sm:px-4 sm:py-6 animate-fade-in max-w-2xl mx-auto">
             {/* Header Icon */}
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-emerald-800 text-amber-200 border border-emerald-900/30 flex items-center justify-center mb-3 sm:mb-4 shadow-sm">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#164E3B] text-[#E8D7B0] border border-[#164E3B]/30 flex items-center justify-center mb-3 sm:mb-4 shadow-2xs">
               <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.7} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
               </svg>
             </div>
 
-            <h2 className="text-lg sm:text-2xl font-bold text-slate-900 mb-1.5 sm:mb-2 tracking-tight">
+            <h2 className="text-lg sm:text-2xl font-bold text-stone-900 font-serif mb-1.5 sm:mb-2 tracking-tight">
               Meja Telaah Turats &amp; Penelusuran Sanad
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-lg mb-4 sm:mb-6 leading-relaxed">
+            <p className="text-xs sm:text-sm text-stone-600 max-w-lg mb-4 sm:mb-6 leading-relaxed">
               Eksplorasi matan, syarah, dan kaidah nahwu dari naskah Intisari Kitab Al-Kawakib Ad-Durriyyah Syarah Mutammimah Al-Jurumiyyah (284 Halaman rujukan resmi Dayah Minhajussalam).
             </p>
 
             {/* OCR Vision Card */}
-            <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl bg-white border border-slate-200 shadow-xs max-w-lg w-full text-left">
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl bg-white border border-[#E5DFD3] shadow-2xs max-w-lg w-full text-left">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-emerald-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-[#164E3B] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                   </svg>
                   Modul Multimodal Vision OCR
                 </span>
-                <span className="text-[10px] bg-emerald-50 text-emerald-800 font-semibold px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
-                  Aktif & Siap Pakai
+                <span className="text-[10px] bg-[#164E3B]/8 text-[#164E3B] font-semibold px-2 py-0.5 rounded border border-[#164E3B]/20 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#164E3B] animate-pulse"></span>
+                  Aktif &amp; Siap Pakai
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-slate-600 mb-2.5 sm:mb-3 leading-relaxed">
+              <p className="text-[11px] sm:text-xs text-stone-600 mb-2.5 sm:mb-3 leading-relaxed">
                 Foto langsung lembar naskah atau kitab kuning fisik Anda. Asisten AI akan mentranskripsi teks Arab matan dan menguraikan syarah penjelasannya.
               </p>
               <button
                 id="btn-demo-multimodal"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2 bg-[#FAF8F4] hover:bg-[#FAF6ED] border border-[#E5DFD3] hover:border-[#C5A059] text-stone-800 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
               >
-                <span>📷 Ambil Foto / Unggah Naskah</span>
+                <span>Ambil Foto / Unggah Naskah</span>
               </button>
             </div>
 
@@ -713,28 +710,28 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-slate-200 bg-white p-2.5 sm:p-3 lg:p-4">
+      <div className="border-t border-[#E5DFD3] bg-[#FAF8F4] p-2.5 sm:p-3 lg:p-4 flex-shrink-0">
         {/* Image Preview */}
         {imagePreview && (
-          <div className="mb-2.5 flex items-start gap-2.5 p-2 bg-slate-50 border border-slate-200 rounded-xl animate-slide-up">
+          <div className="mb-2.5 flex items-start gap-2.5 p-2 bg-white border border-[#E5DFD3] rounded-xl animate-slide-up shadow-2xs">
             <div className="relative group">
               <img
                 src={imagePreview}
                 alt="Pratinjau naskah"
-                className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-slate-200 bg-white"
+                className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-[#E5DFD3] bg-white"
               />
               <button
                 onClick={removeImage}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-slate-800 hover:bg-rose-600 text-white rounded-full flex items-center justify-center text-xs transition-colors shadow-xs"
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-stone-800 hover:bg-[#8B1E24] text-white rounded-full flex items-center justify-center text-xs transition-colors shadow-2xs"
                 title="Hapus foto"
               >
                 &times;
               </button>
             </div>
             <div className="py-0.5">
-              <p className="text-xs font-bold text-slate-800">Foto Naskah Terlampir</p>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">
-                Sistem akan membaca matan naskah dan mencocokkan dengan basis data syarah.
+              <p className="text-xs font-bold text-stone-800">Foto Naskah Terlampir</p>
+              <p className="text-[10px] sm:text-[11px] text-stone-500 mt-0.5">
+                Sistem akan membaca matan naskah dan mencocokkan dengan basis data syarah Al-Kawakib.
               </p>
             </div>
           </div>
@@ -746,7 +743,7 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
           <button
             id="btn-attach-image"
             onClick={() => fileInputRef.current?.click()}
-            className="p-2 sm:p-2.5 rounded-lg text-slate-500 hover:text-emerald-800 hover:bg-slate-100 transition-colors flex-shrink-0"
+            className="p-2 sm:p-2.5 rounded-lg text-stone-600 hover:text-[#164E3B] hover:bg-stone-200/60 transition-colors flex-shrink-0"
             title="Unggah atau ambil foto lembar kitab untuk OCR & Syarah"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
@@ -773,10 +770,10 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
               onKeyDown={handleKeyDown}
               placeholder="Tanyakan kaidah nahwu, hukum i'rab, atau cari bab di Kitab Al-Kawakib..."
               rows={1}
-              className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl
-                         text-xs sm:text-sm text-slate-800 placeholder-slate-400
-                         focus:outline-none focus:ring-1 focus:ring-emerald-700 focus:border-emerald-700
-                         resize-none transition-colors"
+              className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-white border border-[#E5DFD3] rounded-xl
+                         text-xs sm:text-sm text-stone-900 placeholder-stone-400
+                         focus:outline-none focus:ring-1 focus:ring-[#164E3B] focus:border-[#164E3B]
+                         resize-none transition-colors shadow-2xs"
             />
           </div>
 
@@ -785,9 +782,9 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
             id="btn-send-message"
             onClick={() => sendMessage()}
             disabled={isLoading || (!inputText.trim() && !imageBase64)}
-            className="p-2 sm:p-2.5 rounded-xl bg-emerald-800 text-white
-                       hover:bg-emerald-900 disabled:opacity-40 disabled:cursor-not-allowed
-                       transition-colors shadow-xs flex-shrink-0"
+            className="p-2 sm:p-2.5 rounded-xl bg-[#164E3B] text-[#FAF6EE]
+                       hover:bg-[#123E2F] disabled:opacity-40 disabled:cursor-not-allowed
+                       transition-colors shadow-2xs flex-shrink-0"
             title="Kirim telaah"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -799,7 +796,7 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
         {/* Quick Prompts Chip (when in conversation) */}
         {messages.length > 0 && (
           <div className="flex items-center gap-1.5 mt-2 overflow-x-auto pb-1 max-w-4xl mx-auto no-scrollbar">
-            <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider flex-shrink-0">
+            <span className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider flex-shrink-0">
               Pintas:
             </span>
             {quickPrompts.slice(0, 4).map((prompt, idx) => (
@@ -807,8 +804,8 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
                 key={idx}
                 onClick={() => sendMessage(prompt.label)}
                 disabled={isLoading}
-                className="flex-shrink-0 px-2 py-0.5 bg-slate-100 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded text-[10px] sm:text-[11px] 
-                           text-slate-700 hover:text-emerald-900 transition-colors disabled:opacity-50 whitespace-nowrap"
+                className="flex-shrink-0 px-2 py-0.5 bg-white hover:bg-[#FAF6ED] border border-[#E5DFD3] hover:border-[#C5A059] rounded text-[10px] sm:text-[11px] 
+                           text-stone-700 hover:text-[#164E3B] transition-colors disabled:opacity-50 whitespace-nowrap shadow-2xs"
               >
                 [{prompt.category}] {prompt.label}
               </button>

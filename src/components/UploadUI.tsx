@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { mockDocuments } from '@/lib/mock-data';
@@ -126,71 +126,71 @@ export default function UploadUI() {
   const categories = ['Semua', 'Nahwu & Gramatika Arab Klasik', "Kaidah I'rab", 'Syarah Mutammimah', 'Dokumen Tambahan'];
 
   return (
-    <div className="min-h-full w-full bg-slate-50 p-3 sm:p-6 lg:p-8 pb-20">
+    <div className="min-h-full w-full bg-[#FAF7F2] p-3 sm:p-6 lg:p-8 pb-20">
       <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <h1 className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-base sm:text-xl font-bold text-stone-900 font-serif tracking-tight">
               Korpus Literatur Kitab (Knowledge Base RAG)
             </h1>
-            <span className="px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-emerald-50 text-emerald-800 rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
-              Katalog Terindeks & Terverifikasi
+            <span className="px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-[#164E3B]/8 text-[#164E3B] rounded-full border border-[#164E3B]/20 inline-flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#164E3B] animate-pulse"></span>
+              Katalog Terindeks &amp; Terverifikasi
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
             Koleksi naskah kitab kuning dan literatur turats pesantren yang diintegrasikan ke dalam basis rujukan ilmiah asisten AI.
           </p>
         </div>
 
         {/* Informasi Panduan Kurikulum & OCR Naskah */}
-        <div className="p-3.5 sm:p-4 bg-white border border-slate-200/80 rounded-2xl shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="p-3.5 sm:p-4 bg-white border border-[#E5DFD3] rounded-2xl shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-800 shrink-0 mt-0.5 sm:mt-0">
+            <div className="w-9 h-9 rounded-xl bg-[#FAF8F4] border border-[#E5DFD3] flex items-center justify-center text-[#164E3B] shrink-0 mt-0.5 sm:mt-0 shadow-2xs">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
               </svg>
             </div>
             <div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+              <h3 className="text-xs sm:text-sm font-bold text-stone-900 font-serif">
                 Basis Data Turats Standar Pesantren
               </h3>
-              <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5 leading-relaxed">
+              <p className="text-[11px] sm:text-xs text-stone-600 mt-0.5 leading-relaxed">
                 Seluruh naskah di bawah telah melalui pra-pemrosesan semantik vektor RAG. Untuk mengkaji foto lembar fisik kitab naskah langsung, gunakan tombol kamera di menu <strong>Kaji Kitab</strong>.
               </p>
             </div>
           </div>
-          <span className="self-end sm:self-auto shrink-0 px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-200">
+          <span className="self-end sm:self-auto shrink-0 px-2.5 py-1 text-[11px] font-semibold bg-[#8B1E24]/10 text-[#8B1E24] rounded-lg border border-[#8B1E24]/20 uppercase tracking-wider">
             Rujukan Mu&apos;tamad
           </span>
         </div>
 
         {/* Statistik Kompak */}
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4 shadow-xs">
-            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">Total Naskah</p>
-            <p className="text-lg sm:text-2xl font-bold text-slate-900 mt-0.5">{documents.length}</p>
+          <div className="bg-white border border-[#E5DFD3] rounded-xl p-2.5 sm:p-4 shadow-2xs">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-stone-500">Total Naskah</p>
+            <p className="text-lg sm:text-2xl font-bold font-serif text-stone-900 mt-0.5">{documents.length}</p>
           </div>
-          <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4 shadow-xs">
-            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-800">Terindeks RAG</p>
-            <p className="text-lg sm:text-2xl font-bold text-emerald-800 mt-0.5">
+          <div className="bg-white border border-[#E5DFD3] rounded-xl p-2.5 sm:p-4 shadow-2xs">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#164E3B]">Terindeks RAG</p>
+            <p className="text-lg sm:text-2xl font-bold font-serif text-[#164E3B] mt-0.5">
               {documents.filter(d => d.status === 'indexed').length}
             </p>
           </div>
-          <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4 shadow-xs">
-            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-600">Status Korpus</p>
-            <p className="text-xs sm:text-sm font-bold text-emerald-700 mt-1 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-              Aktif & Terjaga
+          <div className="bg-white border border-[#E5DFD3] rounded-xl p-2.5 sm:p-4 shadow-2xs">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-stone-600">Status Korpus</p>
+            <p className="text-xs sm:text-sm font-bold text-[#164E3B] mt-1 flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-[#164E3B] inline-block"></span>
+              Aktif &amp; Terjaga
             </p>
           </div>
         </div>
 
         {/* Filter & Daftar Dokumen */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-5 shadow-xs space-y-3.5">
+        <div className="bg-white border border-[#E5DFD3] rounded-2xl p-3.5 sm:p-5 shadow-2xs space-y-3.5">
           <div className="flex flex-col sm:flex-row gap-2.5 justify-between items-start sm:items-center">
-            <h2 className="text-xs sm:text-sm font-bold text-slate-900">Daftar Literatur Terindeks</h2>
+            <h2 className="text-xs sm:text-sm font-bold text-stone-900 font-serif">Daftar Literatur Terindeks</h2>
             {/* Horizontal scroll untuk kategori di mobile */}
             <div className="flex overflow-x-auto pb-1 gap-1.5 w-full sm:w-auto no-scrollbar">
               {categories.map(cat => (
@@ -199,8 +199,8 @@ export default function UploadUI() {
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-lg whitespace-nowrap transition-colors flex-shrink-0 ${
                     selectedCategory === cat
-                      ? 'bg-emerald-800 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-[#164E3B] text-white'
+                      : 'bg-[#FAF8F4] text-stone-600 hover:bg-stone-200/60 border border-[#E5DFD3]'
                   }`}
                 >
                   {cat}
