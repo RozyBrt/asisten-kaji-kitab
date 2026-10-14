@@ -746,7 +746,7 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Tanyakan materi fikih, nahwu, atau ketik masalah kajian..."
+              placeholder="Tanyakan kaidah nahwu, hukum i'rab, atau cari bab di Kitab Al-Kawakib..."
               rows={1}
               className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-xl
                          text-xs sm:text-sm text-slate-800 placeholder-slate-400

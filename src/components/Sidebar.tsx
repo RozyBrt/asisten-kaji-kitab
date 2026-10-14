@@ -154,10 +154,10 @@ export default function Sidebar({ activeModule, onModuleChange, isOpen, onClose 
             <div className="w-2 h-2 bg-emerald-600 rounded-full flex-shrink-0" />
             <div className="min-w-0">
               <p className="text-[11px] font-semibold text-emerald-900 truncate">
-                4 Korpus Kitab Terindeks
+                Rujukan Intisari Al-Kawakib
               </p>
               <p className="text-[9px] text-slate-500 truncate">
-                Nahwu, Fikih &amp; Adab
+                Syarah Mutammimah (284 Hal)
               </p>
             </div>
           </div>
