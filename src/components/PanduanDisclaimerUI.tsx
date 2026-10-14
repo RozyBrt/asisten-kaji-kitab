@@ -208,9 +208,15 @@ export default function PanduanDisclaimerUI() {
                   <h2 className="text-lg sm:text-xl font-bold text-stone-900 font-serif pt-1">
                     Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah Al-Jurumiyyah
                   </h2>
-                  <p className="text-xs text-stone-600">
-                    Karya Abuya Tgk. H. Syarifuddin Abu Bakar &bull; Dayah Perbatasan Minhajussalam, Subulussalam
-                  </p>
+                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-stone-600 pt-0.5">
+                    <span>Penulis: <strong className="text-stone-900 font-semibold">Iswandi El-Nisamy</strong></span>
+                    <span className="text-stone-300">&bull;</span>
+                    <span>Editor: <strong className="text-stone-900 font-semibold">Tgk. Dr. Safriadi, MA.</strong></span>
+                    <span className="text-stone-300">&bull;</span>
+                    <span>Penerbit: <span className="text-stone-700">CV. Manhaji Medan (Cet. I, Maret 2020)</span></span>
+                    <span className="text-stone-300">&bull;</span>
+                    <span className="text-[#164E3B] font-medium">Digitalisasi: Dayah Perbatasan Minhajussalam</span>
+                  </div>
                 </div>
 
                 <a
