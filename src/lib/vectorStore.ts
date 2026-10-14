@@ -108,8 +108,127 @@ const NAHWU_STOPWORDS = new Set([
   'tolong', 'jelaskan', 'terangkan', 'uraikan', 'tentang', 'apa', 'itu', 'bagaimana',
   'adalah', 'mohon', 'maksud', 'dari', 'pada', 'yang', 'dalam', 'dan', 'atau', 'seperti',
   'merupakan', 'secara', 'menurut', 'kitab', 'bisa', 'kah', 'apakah', 'pengertian',
-  'definisi', 'makna', 'arti', 'hukum', 'kaidah', 'contoh'
+  'definisi', 'makna', 'arti', 'hukum', 'kaidah', 'contoh', 'kepada', 'kepadaku', 'ku',
+  'saya', 'kami', 'anda', 'dong', 'ya', 'tanya', 'ingin', 'tahu', 'dia'
 ]);
+
+// Kamus sinonim & variasi ejaan fonetik santri untuk istilah-istilah Nahwu klasik
+const NAHWU_VARIANTS: Record<string, string[]> = {
+  // Istitsna' & Mustatsna
+  'mustatna': ['mustatsna', 'istitsna'],
+  'mustasna': ['mustatsna', 'istitsna'],
+  'mustathna': ['mustatsna', 'istitsna'],
+  'mustatsna': ['mustatsna', 'istitsna'],
+  'istisna': ['istitsna', 'mustatsna'],
+  'istitna': ['istitsna', 'mustatsna'],
+  'istithna': ['istitsna', 'mustatsna'],
+  'istitsna': ['istitsna', 'mustatsna'],
+
+  // Fa'il & Na'ibul Fa'il
+  'fail': ['fail', "fa'il"],
+  'naib': ['naibul', "na'ibul", 'naibul fail', 'maful yang tidak disebutkan'],
+  'naibul': ['naibul', "na'ibul", 'naib fail'],
+  'naibal': ['naibul', "na'ibul"],
+
+  // Mutsanna & Tatsniyah
+  'mutanna': ['mutsanna', 'tatsniyah'],
+  'musanna': ['mutsanna', 'tatsniyah'],
+  'mutsanna': ['mutsanna', 'tatsniyah'],
+  'tatsniyah': ['tatsniyah', 'mutsanna'],
+  'tasniyah': ['tatsniyah', 'mutsanna'],
+  'tatniyah': ['tatsniyah', 'mutsanna'],
+
+  // Fi'il & Madhi/Mudhari'/Amar
+  'fiil': ['fiil', "fi'il"],
+  'madhi': ['madhi', 'madi'],
+  'mudhari': ['mudhari', 'mudhori', 'mudhore'],
+  'mudhori': ['mudhari', 'mudhori'],
+  'mudhore': ['mudhari', 'mudhori'],
+  'amar': ['amr', 'amar'],
+
+  // I'rab & Bina'
+  'irab': ['irab', "i'rab"],
+  'bina': ['bina', 'mabni'],
+  'mabni': ['mabni', 'bina'],
+
+  // Tanda I'rab: Rofa', Nashab, Khafadh/Jar, Jazm
+  'rofa': ['rofa', 'rafa', 'marfu', 'dhommah'],
+  'rafa': ['rofa', 'rafa', 'marfu', 'dhommah'],
+  'marfu': ['marfu', 'rofa', 'rafa'],
+  'dhommah': ['dhommah', 'dhammah', 'dommah'],
+  'dhammah': ['dhommah', 'dommah'],
+  'dommah': ['dhommah'],
+  'nasab': ['nashab', 'manshub', 'fathah'],
+  'nashab': ['nashab', 'manshub', 'fathah'],
+  'manshub': ['manshub', 'nashab'],
+  'mansub': ['manshub', 'nashab'],
+  'khafadh': ['khafadh', 'khafad', 'jar', 'majrur', 'kasrah'],
+  'khafad': ['khafadh', 'jar', 'majrur'],
+  'jer': ['jar', 'khafadh', 'majrur'],
+  'jar': ['jar', 'khafadh', 'majrur'],
+  'majrur': ['majrur', 'jar', 'khafadh'],
+  'jazm': ['jazm', 'jazam', 'majzum', 'sukun'],
+  'jazam': ['jazm', 'majzum'],
+  'majzum': ['majzum', 'jazm'],
+
+  // Marfu'atil Asma'
+  'mubtada': ['mubtada', "mubtada'"],
+  'khabar': ['khabar', 'khobar'],
+  'khobar': ['khabar'],
+  'nawasikh': ['nawasikh', 'kaana', 'inna', 'zhanna'],
+  'kana': ['kaana'],
+  'kaana': ['kaana'],
+
+  // Manshubatil Asma'
+  'maful': ["maf'ul", 'maful'],
+  'bih': ["maf'ul bih", 'bih'],
+  'muthlaq': ['muthlaq', 'mashdar'],
+  'mutlaq': ['muthlaq', 'mashdar'],
+  'fih': ['fih', 'dzaraf'],
+  'dzaraf': ['dzaraf', 'zharaf', 'zaraf'],
+  'zharaf': ['dzaraf', 'zharaf'],
+  'zaraf': ['dzaraf', 'zharaf'],
+  'liajlih': ['liajlih', 'li ajlih'],
+  'maah': ["ma'ah"],
+  'hal': ['hal', 'haal'],
+  'haal': ['hal'],
+  'tamyiz': ['tamyiz', 'tamyez'],
+  'tamyez': ['tamyiz'],
+  'munada': ['munada', 'nida'],
+  'nida': ['munada', 'nida'],
+
+  // Tawabi'
+  'tawabi': ['tawabi', 'naat', 'athaf', 'taukid', 'badal'],
+  'naat': ['naat', "na'at", 'sifat'],
+  'sifat': ['naat', "na'at", 'sifat'],
+  'athaf': ['athaf', "'athaf", 'athof'],
+  'athof': ['athaf', "'athaf"],
+  'taukid': ['taukid', 'tawkid', 'takid', "ta'kid"],
+  'takid': ['taukid', 'tawkid'],
+  'badal': ['badal'],
+
+  // Isim Ghairu Munsharif
+  'munsharif': ['munsharif', 'munsarif', 'ghairu munsharif'],
+  'munsarif': ['munsharif', 'munsarif', 'ghairu munsharif'],
+  'ghairu': ['ghairu', 'ghoiru', 'munsharif'],
+  'ghoiru': ['ghairu', 'munsharif'],
+
+  // Idhafah
+  'idhafah': ['idhafah', 'idhofah', 'mudhaf', 'mudhaf ilaih'],
+  'idhofah': ['idhafah', 'mudhaf'],
+  'mudhaf': ['mudhaf', 'mudhof', 'idhafah'],
+  'mudhof': ['mudhaf', 'idhafah'],
+
+  // Adad
+  'adad': ['adad', "'adad", 'bilangan'],
+
+  // Sharaf / Tasrif / Tarkhim / Tashghir
+  'tarkhim': ['tarkhim', 'tarkheem'],
+  'tashghir': ['tashghir', 'tasghir'],
+  'tasghir': ['tashghir'],
+  'sharaf': ['sharaf', 'saraf'],
+  'saraf': ['sharaf'],
+};
 
 // Normalisasi teks gramatika Arab/Indonesia (menghilangkan apostrof seperti fa'il -> fail)
 function normalizeNahwuText(str: string): string {
@@ -130,7 +249,17 @@ function calculateLexicalScore(query: string, chunk: KawakibChunk): number {
 
   // Filter stopwords, gunakan rawTokens jika semuanya adalah stopwords
   const meaningfulTokens = rawTokens.filter(t => !NAHWU_STOPWORDS.has(t));
-  const tokens = meaningfulTokens.length > 0 ? meaningfulTokens : rawTokens;
+  const baseTokens = meaningfulTokens.length > 0 ? meaningfulTokens : rawTokens;
+
+  // Ekspansi sinonim dan variasi ejaan fonetik
+  const expandedTokens = new Set<string>();
+  for (const t of baseTokens) {
+    expandedTokens.add(t);
+    if (NAHWU_VARIANTS[t]) {
+      NAHWU_VARIANTS[t].forEach(v => expandedTokens.add(v));
+    }
+  }
+  const tokens = Array.from(expandedTokens);
 
   const babNorm = normalizeNahwuText(chunk.bab);
   const textNorm = normalizeNahwuText(chunk.text);
