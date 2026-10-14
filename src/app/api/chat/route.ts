@@ -18,7 +18,10 @@ PRINSIP UTAMA: INTEGRITAS ILMIAH & ANTI-HALUSINASI (SANGAT KETAT)
 1. DILARANG KERAS MENCATUT ISI KITAB (ZERO FALSE ATTRIBUTION):
    - JANGAN PERNAH mengarang kaidah nahwu atau menyandarkan kalimat buatan sendiri seolah-olah isi kitab!
    - Jawaban Anda harus bersumber dari naskah Al-Kawakib Ad-Durriyyah dan kaidah nahwu mu'tamad (seperti Bab Kalam, I'rab, Tanda Rofa', Fa'il, Na'ibul Fa'il, Mubtada Khabar, Amil Nawasikh Kaana/Inna, Isim Ghairu Munsharif, Tamyiz, Hal, Maf'ul Bih, dll).
-   - Jika pengguna bertanya tentang fiqih atau materi di luar nahwu, jelaskan secara santun bahwa fokus kajian meja telaah ini saat ini dikhususkan pada gramatika bahasa Arab dan kaidah naskah Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah Al-Jurumiyyah.
+   - PERHATIAN PENTING TENTANG CAKUPAN NAHWU:
+     Seluruh materi gramatika Arab seperti Isim Dhamir/Dzamir, Isim Isyarah, Isim Maushul, Kalam, I'rab, Fa'il, Na'ibul Fa'il, Mubtada Khabar, Nawasikh, Manshubat, Mahfuzhat, Tawabi', dll ADALAH INTI DARI ILMU NAHWU dan termaktub dalam naskah Al-Kawakib!
+     JANGAN PERNAH menolak pertanyaan tentang topik nahwu tersebut! Berikan syarah dan penjelasan mendalam.
+     Penolakan santun HANYA berlaku jika pengguna bertanya tentang fiqih murni (seperti tata cara shalat, zakat, puasa, haji), akidah/tasawuf, atau pertanyaan di luar bahasa Arab.
 
 2. PENYAJIAN SITASI DAN RUJUKAN HALAMAN PRESISI:
    - Pada setiap jawaban (kecuali sapaan chit-chat pendek), Anda WAJIB mengisi array "sources" dengan rujukan ke naskah Al-Kawakib:
@@ -134,6 +137,18 @@ function normalizeSources(sources: any[]): KitabSource[] {
 // Kamus Matan Muktamad Naskah Al-Kawakib / Mutammimah Al-Jurumiyyah
 // Mencegah distorsi/halusinasi lafazh Arab akibat fragmentasi karakter bidi RTL pada PDF
 const CANONICAL_MATANS: Array<{ keywords: string[]; matan: string }> = [
+  {
+    keywords: ['dzamir', 'dhamir', 'dhomir', 'mudhmar'],
+    matan: 'اَلْمُضْمَرُ هُوَ : اَلِاسْمُ لِمَا وُضِعَ لِمُتَكَلِّمٍ أَوْ مُخَاطَبٍ أَوْ غَائِبٍ .',
+  },
+  {
+    keywords: ['isyarah'],
+    matan: 'اِسْمُ الْإِشَارَةِ هُوَ : مَا وُضِعَ لِمُشَارٍ إِلَيْهِ حِسِّيٍّ أَوْ مَعْنَوِيٍّ .',
+  },
+  {
+    keywords: ['maushul', 'mausul'],
+    matan: 'اَلِاسْمُ الْمَوْصُولُ هُوَ : مَا لَا يَتِمُّ جُزْؤُهُ إِلَّا بِصِلَةٍ وَعَائِدٍ .',
+  },
   {
     keywords: ['badal'],
     matan: 'اَلْبَدَلُ هُوَ : اَلتَّابِعُ الْمَقْصُودُ بِالْحُكْمِ بِلَا وَاسِطَةٍ .',

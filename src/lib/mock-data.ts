@@ -83,6 +83,60 @@ const kawakibMockResponses: Record<string, ChatApiResponse> = {
       },
     ],
   },
+  'dzamir': {
+    reply: `**Definisi dan Pembagian Isim Dzamir (Dhamir)** menurut naskah **Al-Kawakib Ad-Durriyyah Syarah Mutammimah Al-Jurumiyyah**:\n\nSecara istilah, isim dzamir (al-mudhmar) adalah isim yang di-wadha'-kan untuk menunjukkan orang pertama (mutakallim), orang kedua (mukhathab), atau orang ketiga (ghaib).\n\n**Pembagian Pokok Isim Dzamir (Hal. 34-39):**\n1. **Dzamir Bariz (الضَّمِيرُ الْبَارِزُ):** Dzamir yang memiliki bentuk lafazh nyata dan tampak dalam ucapan.\n   - Terbagi menjadi **Muttashil** (bersambung pada kata lain, seperti ت pada قُمْتُ) dan **Munfashil** (bisa berdiri sendiri diawal kalam, seperti أَنَا، أَنْتَ، هُوَ).\n2. **Dzamir Mustatir (الضَّمِيرُ الْمُسْتَتِرُ):** Dzamir yang tersembunyi/tersimpan di dalam fi'il.\n   - Terbagi menjadi **Wajib Mustatir** (pada fi'il amar mufrad mudzakkar seperti قُمْ [anta], fi'il mudhari' mutakallim seperti أَقُومُ [ana], dan mudhari' mukhathab seperti تَقُومُ [anta]).\n   - Terbagi menjadi **Jaiz Mustatir** (pada fi'il madhi dan mudhari' untuk ghaib/ghaibah seperti زَيْدٌ قَامَ [huwa]).`,
+    arabicText: `اَلْمُضْمَرُ هُوَ : اَلِاسْمُ لِمَا وُضِعَ لِمُتَكَلِّمٍ أَوْ مُخَاطَبٍ أَوْ غَائِبٍ .`,
+    sources: [
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: 'Fasal Isim Dzamir (Dzamir Bariz, Mustatir, Muttashil, Munfashil)',
+        halaman: 'Hal. 34 (PDF Hal. 46)',
+        pdfPage: 46,
+        pdfUrl: '/api/pdf#page=46',
+      },
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: 'Fasal Isim Dzamir (Dzamir Bariz, Mustatir, Muttashil, Munfashil)',
+        halaman: 'Hal. 35 (PDF Hal. 47)',
+        pdfPage: 47,
+        pdfUrl: '/api/pdf#page=47',
+      },
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: 'Fasal Isim Dzamir (Dzamir Bariz, Mustatir, Muttashil, Munfashil)',
+        halaman: 'Hal. 36 (PDF Hal. 48)',
+        pdfPage: 48,
+        pdfUrl: '/api/pdf#page=48',
+      },
+    ],
+  },
+  'dhamir': {
+    reply: `**Definisi dan Pembagian Isim Dzamir (Dhamir)** menurut naskah **Al-Kawakib Ad-Durriyyah Syarah Mutammimah Al-Jurumiyyah**:\n\nSecara istilah, isim dzamir (al-mudhmar) adalah isim yang di-wadha'-kan untuk menunjukkan orang pertama (mutakallim), orang kedua (mukhathab), atau orang ketiga (ghaib).\n\n**Pembagian Pokok Isim Dzamir (Hal. 34-39):**\n1. **Dzamir Bariz (الضَّمِيرُ الْبَارِزُ):** Dzamir yang memiliki bentuk lafazh nyata dan tampak dalam ucapan.\n   - Terbagi menjadi **Muttashil** (bersambung pada kata lain, seperti ت pada قُمْتُ) dan **Munfashil** (bisa berdiri sendiri diawal kalam, seperti أَنَا، أَنْتَ، هُوَ).\n2. **Dzamir Mustatir (الضَّمِيرُ الْمُسْتَتِرُ):** Dzamir yang tersembunyi/tersimpan di dalam fi'il.\n   - Terbagi menjadi **Wajib Mustatir** (pada fi'il amar mufrad mudzakkar seperti قُمْ [anta], fi'il mudhari' mutakallim seperti أَقُومُ [ana], dan mudhari' mukhathab seperti تَقُومُ [anta]).\n   - Terbagi menjadi **Jaiz Mustatir** (pada fi'il madhi dan mudhari' untuk ghaib/ghaibah seperti زَيْدٌ قَامَ [huwa]).`,
+    arabicText: `اَلْمُضْمَرُ هُوَ : اَلِاسْمُ لِمَا وُضِعَ لِمُتَكَلِّمٍ أَوْ مُخَاطَبٍ أَوْ غَائِبٍ .`,
+    sources: [
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: 'Fasal Isim Dzamir (Dzamir Bariz, Mustatir, Muttashil, Munfashil)',
+        halaman: 'Hal. 34 (PDF Hal. 46)',
+        pdfPage: 46,
+        pdfUrl: '/api/pdf#page=46',
+      },
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: 'Fasal Isim Dzamir (Dzamir Bariz, Mustatir, Muttashil, Munfashil)',
+        halaman: 'Hal. 35 (PDF Hal. 47)',
+        pdfPage: 47,
+        pdfUrl: '/api/pdf#page=47',
+      },
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: 'Fasal Isim Dzamir (Dzamir Bariz, Mustatir, Muttashil, Munfashil)',
+        halaman: 'Hal. 36 (PDF Hal. 48)',
+        pdfPage: 48,
+        pdfUrl: '/api/pdf#page=48',
+      },
+    ],
+  },
   'badal': {
     reply: `**Definisi dan Ketentuan Badal** menurut naskah **Al-Kawakib Ad-Durriyyah Syarah Mutammimah Al-Jurumiyyah**:\n\nSecara bahasa, badal bermakna *'iwadh* (pengganti). Sedangkan secara istilah ulama nahwu, badal adalah:\n\n> *Tabi' (kata pengikut) yang dimaksudkan dengan pensandaran hukum secara langsung/pokok tanpa adanya perantaraan huruf antara badal dan mathbu'nya.*\n\n**Empat Macam Pembagian Badal (Hal. 243-247):**\n1. **Badal Kull min Kull / Badal Syai' min Syai' (بَدَلُ الْكُلِّ مِنَ الْكُلِّ):** Badal yang sama persis dengan madlul mathbu'nya. Contoh: جَاءَ زَيْدٌ أَخُوكَ (Zaid telah datang, yaitu saudaramu).\n2. **Badal Ba'dh min Kull (بَدَلُ الْبَعْضِ مِنَ الْكُلِّ):** Badal yang merupakan bagian/pecahan dari mathbu'nya (wajib memiliki dhamir yang kembali kepada mathbu'). Contoh: أَكَلْتُ الرَّغِيفَ ثُلُثَهُ (Aku memakan roti itu sepertiganya).\n3. **Badal Isytimal (بَدَلُ الِاشْتِمَالِ):** Badal yang memiliki keterkaitan makna dengan mathbu'nya namun bukan merupakan juz/bagian fisiknya (juga wajib ber-dhamir). Contoh: نَفَعَنِي زَيْدٌ عِلْمُهُ (Zaid memberi manfaat kepadaku, yaitu ilmunya).\n4. **Badal Ghalath (بَدَلُ الْغَلَطِ / الْبَدَاءِ / النِّسْيَانِ):** Penggantian karena salah ucap yang segera diralat. Contoh: رَأَيْتُ زَيْدًا الْفَرَسَ (Aku melihat Zaid, eh kudanya).`,
     arabicText: `اَلْبَدَلُ هُوَ : اَلتَّابِعُ الْمَقْصُودُ بِالْحُكْمِ بِلَا وَاسِطَةٍ .`,

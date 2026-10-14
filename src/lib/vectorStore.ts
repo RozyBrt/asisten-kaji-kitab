@@ -110,8 +110,12 @@ const NAHWU_STOPWORDS = new Set([
   'merupakan', 'secara', 'menurut', 'kitab', 'bisa', 'kah', 'apakah', 'pengertian',
   'definisi', 'makna', 'arti', 'hukum', 'kaidah', 'contoh', 'kepada', 'kepadaku', 'ku',
   'saya', 'kami', 'anda', 'dong', 'ya', 'tanya', 'ingin', 'tahu', 'tau', 'mau', 'dia',
-  'sih', 'nih', 'kan', 'tuh', 'lah', 'pun', 'coba', 'akan', 'kasih', 'beri'
+  'sih', 'nih', 'kan', 'tuh', 'lah', 'pun', 'coba', 'akan', 'kasih', 'beri',
+  'pembagian', 'pembagiannya', 'macam', 'macamnya', 'jenis', 'jenisnya', 'rincian', 'rinciannya'
 ]);
+
+// Kata-kata umum gramatika yang tidak boleh memicu lonjakan skor bab sendirian
+const GENERIC_NAHWU_WORDS = new Set(['isim', 'aslinya', 'hukum', 'tanda', 'kalimat', 'bab', 'fasal']);
 
 // Kamus sinonim & variasi ejaan fonetik santri untuk istilah-istilah Nahwu klasik
 const NAHWU_VARIANTS: Record<string, string[]> = {
@@ -128,6 +132,17 @@ const NAHWU_VARIANTS: Record<string, string[]> = {
   'istitna': ['istitsna', 'mustatsna'],
   'istithna': ['istitsna', 'mustatsna'],
   'istitsna': ['istitsna', 'mustatsna'],
+
+  // Isim Dhamir / Dzamir / Mudhmar
+  'dzamir': ['dzamir', 'dhamir', 'dhomir', 'mudhmar', 'isim dzamir', 'isim dhamir'],
+  'dhamir': ['dhamir', 'dzamir', 'dhomir', 'mudhmar', 'isim dzamir', 'isim dhamir'],
+  'dhomir': ['dhomir', 'dhamir', 'dzamir', 'mudhmar'],
+  'mudhmar': ['mudhmar', 'dzamir', 'dhamir', 'dhomir'],
+
+  // Isim Isyarah & Maushul
+  'isyarah': ['isyarah', 'isyrarah', 'isim isyarah'],
+  'maushul': ['maushul', 'mausul', 'isim maushul'],
+  'mausul': ['maushul', 'mausul', 'isim maushul'],
 
   // Fa'il & Na'ibul Fa'il
   'fail': ['fail', "fa'il"],
@@ -278,32 +293,46 @@ function calculateLexicalScore(query: string, chunk: KawakibChunk): number {
 
   let score = 0;
 
-  for (const token of tokens) {
-    // 1. Bobot sangat tinggi jika kata kunci ada dalam nama Bab/Fasal (DENGAN BATAS KATA)
-    if (wordBoundaryMatch(babNorm, token)) {
-      score += 30;
-      // Bonus jika diawali 'bab [token]' atau 'fasal [token]'
-      if (babNorm.includes('bab ' + token) || babNorm.includes('fasal ' + token)) {
-        score += 20;
+  // 1. Bonus besar jika frasa multi-kata cocok di nama bab (misal: "isim dzamir", "maful muthlaq", "naibul fail")
+  if (baseTokens.length >= 2) {
+    for (let i = 0; i < baseTokens.length - 1; i++) {
+      const phrase = baseTokens[i] + ' ' + baseTokens[i + 1];
+      if (babNorm.includes(phrase)) {
+        score += 80;
       }
-    }
-
-    // 2. Bobot kemunculan dalam isi teks naskah (DENGAN BATAS KATA)
-    if (wordBoundaryMatch(textNorm, token)) {
-      score += 3;
-      // Hitung frekuensi kemunculan (dibatasi agar tidak bias)
-      const count = (textNorm.match(new RegExp('\\b' + token + '\\b', 'gi')) || []).length;
-      score += Math.min(count * 0.8, 12);
-    }
-
-    // 3. Bonus sangat tinggi jika chunk memuat judul bab eksplisit di dalam teks
-    if (textNorm.includes('bab tentang ' + token) || textNorm.includes('bab ' + token)) {
-      score += 50;
     }
   }
 
-  // 4. Bonus prioritas jika chunk memuat pembuka bab / matan pokok
-  if (chunk.text.includes('بَاب') || chunk.text.includes('Bab Tentang')) {
+  for (const token of tokens) {
+    const isGeneric = GENERIC_NAHWU_WORDS.has(token);
+
+    // 2. Bobot kemunculan dalam nama Bab/Fasal
+    if (wordBoundaryMatch(babNorm, token)) {
+      score += isGeneric ? 10 : 35;
+      if (!isGeneric && (babNorm.includes('bab ' + token) || babNorm.includes('fasal ' + token))) {
+        score += 25;
+      }
+    }
+
+    // 3. Bobot kemunculan dalam isi teks naskah
+    if (wordBoundaryMatch(textNorm, token)) {
+      score += isGeneric ? 1 : 3;
+      const count = (textNorm.match(new RegExp('\\b' + token + '\\b', 'gi')) || []).length;
+      score += Math.min(count * (isGeneric ? 0.3 : 0.8), isGeneric ? 5 : 12);
+    }
+
+    // 4. Bonus jika chunk memuat judul bab eksplisit di dalam teks (HANYA UNTUK NON-GENERIC)
+    if (!isGeneric) {
+      if (textNorm.includes('bab tentang ' + token) || textNorm.includes('bab ' + token) ||
+          textNorm.includes('fasal tentang ' + token) || textNorm.includes('fasal ' + token)) {
+        score += 50;
+      }
+    }
+  }
+
+  // 5. Bonus prioritas jika chunk memuat pembuka bab/fasal atau matan pokok
+  if (chunk.text.includes('بَاب') || chunk.text.includes('Bab Tentang') ||
+      chunk.text.includes('فَصْل') || chunk.text.includes('Fasal')) {
     score += 25;
   } else if (chunk.text.includes('Definisi') || chunk.text.includes('Pengertian')) {
     score += 10;
