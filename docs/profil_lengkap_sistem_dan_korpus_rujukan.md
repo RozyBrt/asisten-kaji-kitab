@@ -43,8 +43,8 @@ Ruang kerja utama tempat santri atau pengkaji berdiskusi dan menelaah naskah.
   - Tersedia tombol uji cepat **"Ambil Foto / Unggah Naskah"** dan demo citra bab Wudhu untuk pengujian instan.
 * **Ekspor Risalah Kajian Lengkap ke Dokumen PDF:**
   - Tombol **"Unduh Seluruh Percakapan (PDF)"** yang otomatis memformat seluruh dialog tanya-jawab menjadi risalah resmi pesantren ber-kop Dayah Minhajussalam yang rapi, bernomor halaman, dan siap dicetak/diarsipkan.
-* **Topik Penelusuran Populer (Quick Prompts):**
-  - Tombol kilat untuk materi: *Syarat Sah Wudhu*, *Adab Menuntut Ilmu*, *Rukun Shalat*, *Kaidah Kalam & I'rab*, *Hukum Puasa*, dan *Doa Setelah Shalat*.
+* **Topik Penelusuran Populer (Quick Prompts Nahwu):**
+  - Tombol kilat untuk materi gramatika inti: *Kaidah Kalam & Syaratnya*, *Tanda I'rab Rofa'*, *Amil Kaana & Saudaranya*, *Hukum Fa'il & Na'ibul Fa'il*, *Amalan Inna wa Akhwatuha*, dan *Isim Ghairu Munsharif*.
 
 ### 2.2 Modul 2: Muraja'ah Hafalan Al-Qur'an (Gamifikasi Santri)
 Modul interaktif untuk membantu santri menguji ingatan ayat dan matan secara mandiri.
@@ -65,23 +65,25 @@ Repositori literatur digital yang menjadi landasan pengetahuan (*grounding*) bag
 
 ---
 
-## 3. Inventarisasi Kitab yang Sudah Dijadikan Rujukan (Korpus Saat Ini)
+## 3. Naskah Kurikulum Inti yang Menjadi Rujukan Tunggal (Fokus Pesantren)
 
-Berikut adalah daftar literatur turats mu'tamad yang saat ini telah terindeks dan menjadi basis rujukan utama di dalam sistem:
+Berdasarkan kesepakatan dan evaluasi bersama asatidzah/manajemen Dayah, sistem difokuskan secara mendalam pada naskah kurikulum resmi mereka:
 
-| No | Nama Kitab | Penyusun / Ulama | Bidang Keilmuan | Keterangan / Fokus Bahasan |
-|---|---|---|---|---|
-| 1 | **Al-Kawakib Ad-Durriyyah** *(Syarah Mutammimah Al-Ajurrumiyyah)* | Syaikh Muhammad az-Zuhri al-Ghamrawi | Gramatika Bahasa Arab (Nahwu & Sharaf) | Kaidah kalam, tanda-tanda i'rab, bina' fa'il, na'at, athaf, dan kedudukan kalimat Arab klasik. (412 Hal) |
-| 2 | **Fathul Qarib al-Mujib fi Syarhi Alfazhit Taqrib** | Syaikh Al-Qasim Muhammad bin Qasim al-Ghazi | Fiqih Mazhab Syafi'i | Rujukan standar fiqih ibadah: Thaharah, Shalat, Zakat, Puasa, Haji, dan Mu'amalah dasar. (156 Hal) |
-| 3 | **Safinatun Najah fi Ushuliddin wal Fiqh** | Syaikh Salim bin Sumair al-Hadhrami | Fiqih Ibadah & Aqidah Dasar | Matan ringkas fardhu wudhu, rukun shalat, syarat shalat, pembatal thaharah, dan rukun iman. (48 Hal) |
-| 4 | **Minhajuth Thalibin wa 'Umdatul Muftin** | Imam Abu Zakariya Yahya bin Syaraf An-Nawawi | Fiqih Syafi'i Tingkat Menengah-Tinggi | Rujukan fatwa mu'tamad mazhab Syafi'i mengenai hukum furu'iyyah yang lebih mendalam. (342 Hal) |
-| 5 | **Ta'limul Muta'allim Thariqata-Ta'allum** | Syaikh Burhanuddin Az-Zarnuji | Adab, Akhlaq, & Metodologi Santri | Niat menuntut ilmu, memilih guru dan kawan, penghormatan terhadap kitab dan ustadz, serta ketekunan belajar. (89 Hal) |
-
-#### Rujukan Dalil Pendukung yang Dipadankan:
-Selain 5 kitab induk di atas, sistem juga memadankan dalil hadits dan kaidah pensyarahan dari:
-* **Riyadhus Shalihin** & **Al-Arba'in An-Nawawiyyah** (Imam An-Nawawi) — untuk dalil hadits sahih akhlaq dan ibadah.
-* **Bulughul Maram min Adillatil Ahkam** (Al-Hafizh Ibnu Hajar Al-Asqalani) — untuk dalil hadits hukum fiqih.
-* **Ihya' Ulumiddin** & **Bidayatul Hidayah** (Hujjatul Islam Imam Al-Ghazali) — untuk adab batiniah dan tasawuf 'amali.
+### 📖 **INTISARI KITAB AL-KAWAKIB AL-DURRIYYAH SYARAH MUTAMMIMAH AL-JURUMIYYAH**
+* **Pengarang / Pensyarah:** Syaikh Muhammad az-Zuhri al-Ghamrawi (Syarah atas *Mutammimah Al-Ajurrumiyyah* karya Syaikh Syamsuddin Muhammad bin Muhammad ar-Ra'ini Al-Haththab).
+* **Disiplin Ilmu:** Gramatika Bahasa Arab Tingkat Lanjutan (Nahwu, I'rab, & Kaidah Tarkib Kalimat).
+* **Data Berkas Naskah Fisik/Digital:**
+  - File PDF: `rujukan/INTISARI KITAB AL-KAWAKIB AL-DURRIYYAH SYARAH MUTAMMIMAH AL-JURUMIYYAH.pdf`
+  - Jumlah Halaman File: **284 Halaman** (Halaman 1–12 mukaddimah & daftar isi naskah; Halaman 13–284 isi materi kitab).
+  - Penomoran Halaman Asli Kitab: **272 Halaman** ($Halaman\_PDF = Halaman\_Kitab + 12$).
+  - Indeksasi Digital: **558 segmen/bab** terindeks secara granular dalam basis data semantik (`src/data/al-kawakib-index.json`).
+* **Fitur Sitasi & Penampil PDF Terintegrasi:**
+  - Setiap jawaban AI menampilkan kartu sitasi yang memuat: Nama Kitab, Bab/Fasal, Halaman Naskah Kitab, dan Halaman Berkas PDF.
+  - Tombol **[Buka Halaman Rujukan]**: Langsung membuka penampil dokumen PDF pada peramban dan melompat tepat ke halaman naskah (`/api/pdf#page=X`).
+  - Tombol **[Unduh PDF]**: Memfasilitasi santri dan ustadz mengunduh naskah utuh (`/api/pdf?download=1`).
+* **Karakteristik Teks Bilingual & Presisi Hermeneutika:**
+  - Naskah Arab berharakat (*syakl/tasykil*) disajikan otentik mendampingi syarah terjemahan bahasa Indonesia.
+  - Menghilangkan pencampuran materi fardhu wudhu/fiqih di luar kurikulum nahwu yang sebelumnya ada pada prototipe awal, sehingga jawaban AI terbukti 100% relevan dengan kajian gramatika nahwu pesantren.
 
 ---
 

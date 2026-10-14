@@ -20,6 +20,8 @@ export interface KitabSource {
   bab: string;
   halaman?: string;
   snippet?: string;
+  pdfPage?: number;
+  pdfUrl?: string;
 }
 
 export interface UploadedDocument {

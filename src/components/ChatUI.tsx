@@ -13,21 +13,54 @@ function generateId() {
   return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-// Source citation card (Rujukan Kitab)
+// Source citation card (Rujukan Kitab dengan Akses PDF Interaktif)
 function SourceCard({ source }: { source: KitabSource }) {
+  const pdfUrl = source.pdfUrl || (source.pdfPage ? `/api/pdf#page=${source.pdfPage}` : '/api/pdf#page=13');
+
   return (
-    <div className="flex items-start gap-2.5 p-2.5 sm:p-3 bg-emerald-50/80 border border-emerald-200/90 rounded-xl hover:border-emerald-300 hover:bg-emerald-50 transition-all">
-      <div className="p-1.5 bg-emerald-800 text-amber-200 rounded-lg flex-shrink-0 mt-0.5">
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-        </svg>
+    <div className="flex flex-col gap-2 p-2.5 sm:p-3 bg-emerald-50/90 border border-emerald-200/90 rounded-xl hover:border-emerald-300 transition-all shadow-2xs">
+      <div className="flex items-start gap-2.5">
+        <div className="p-1.5 bg-emerald-800 text-amber-200 rounded-lg flex-shrink-0 mt-0.5">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+          </svg>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold text-emerald-950 truncate">{source.kitabName}</p>
+          <p className="text-[11px] text-emerald-800 leading-snug">{source.bab}</p>
+          {source.halaman && source.halaman !== '-' && source.halaman !== 'Estimasi' && (
+            <p className="text-[10px] text-slate-600 mt-0.5 font-medium">
+              Rujukan Naskah: <span className="font-semibold text-emerald-900">{source.halaman}</span>
+            </p>
+          )}
+        </div>
       </div>
-      <div className="min-w-0">
-        <p className="text-xs font-bold text-emerald-950 truncate">{source.kitabName}</p>
-        <p className="text-[11px] text-emerald-800 leading-snug">{source.bab}</p>
-        {source.halaman && source.halaman !== '-' && source.halaman !== 'Estimasi' && (
-          <p className="text-[10px] text-slate-500 mt-0.5 font-medium">Halaman: {source.halaman}</p>
-        )}
+
+      {/* Tombol Aksi Verifikasi Naskah: Buka Halaman & Unduh PDF */}
+      <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-emerald-200/70">
+        <a
+          href={pdfUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-800 hover:bg-emerald-900 text-amber-100 rounded-lg text-[10px] sm:text-[11px] font-semibold transition-colors shadow-2xs"
+          title="Buka naskah kitab tepat di halaman rujukan ini"
+        >
+          <svg className="w-3 h-3 text-amber-200 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.5V10.5M13.5 6l6 6m0 0-6 6m6-6H9" />
+          </svg>
+          <span>Buka Halaman Rujukan</span>
+        </a>
+
+        <a
+          href="/api/pdf?download=1"
+          className="inline-flex items-center gap-1 px-2 py-1 bg-white hover:bg-emerald-100/60 text-emerald-800 border border-emerald-300 rounded-lg text-[10px] sm:text-[11px] font-medium transition-colors"
+          title="Unduh seluruh file PDF Intisari Kitab Al-Kawakib Al-Durriyyah (284 Halaman)"
+        >
+          <svg className="w-3 h-3 text-emerald-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.5V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          <span>Unduh PDF</span>
+        </a>
       </div>
     </div>
   );
@@ -591,7 +624,7 @@ export default function ChatUI({ onAiStatusChange }: ChatUIProps) {
               Meja Telaah Turats &amp; Penelusuran Sanad
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 max-w-lg mb-4 sm:mb-6 leading-relaxed">
-              Eksplorasi matan, syarah, dan dalil dari korpus kitab klasik (Al-Kawakib Ad-Durriyyah, Fathul Qarib, Safinatun Najah, dan Minhajuth Thalibin).
+              Eksplorasi matan, syarah, dan kaidah nahwu dari naskah Intisari Kitab Al-Kawakib Ad-Durriyyah Syarah Mutammimah Al-Jurumiyyah (284 Halaman rujukan resmi Dayah Minhajussalam).
             </p>
 
             {/* OCR Vision Card */}

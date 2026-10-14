@@ -59,7 +59,7 @@ export default function ResearchModal({ isOpen, onClose }: ResearchModalProps) {
               <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
                 <span className="text-base font-bold text-emerald-700 block mb-1">① Hybrid RAG</span>
                 <p className="text-[11px] text-slate-600">
-                  Temu kembali semantik vektor (OpenAI/text-embedding) & pencocokan istilah pada 4 korpus inti: <em>Matan Al-Jurumiyyah</em>, <em>Fathul Qarib</em>, <em>Ta&apos;lim Muta&apos;allim</em>, dan <em>Al-Kawakib Ad-Durriyyah</em>.
+                  Temu kembali semantik vektor & pencocokan istilah pada naskah kurikulum inti: <em>Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah Al-Jurumiyyah</em> (284 Halaman / 272 Halaman Kitab, 558 segmen bab terindeks lengkap) terhubung langsung ke pembaca dokumen PDF interaktif.
                 </p>
               </div>
               <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
@@ -76,7 +76,7 @@ export default function ResearchModal({ isOpen, onClose }: ResearchModalProps) {
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-600">
-                  Pembacaan dan transkripsi cerdas citra naskah fisik kitab kuning (aksara Arab/Pegon) dengan model Vision AI, otomatis menyajikan teks matan berharakat serta syarah hukum fiqih.
+                  Pembacaan dan transkripsi cerdas citra naskah fisik kitab kuning (aksara Arab/Pegon) dengan model Vision AI, otomatis menyajikan teks matan berharakat serta syarah kaidah gramatika & hukum nahwu.
                 </p>
               </div>
             </div>

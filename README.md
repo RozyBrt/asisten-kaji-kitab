@@ -57,19 +57,18 @@ Dibangun dengan arsitektur **Hybrid RAG (Retrieval-Augmented Generation)**, sist
 
 ---
 
-## 📚 Korpus Kitab Rujukan Mu'tamad yang Terindeks
+## 📚 Naskah Rujukan Utama (Fokus Inti Pesantren)
 
-Saat ini sistem telah mengindeks dan merujuk literatur klasik terpercaya:
+Sesuai arahan dan kurikulum resmi Dayah/Pesantren, sistem ini difokuskan secara mendalam pada satu naskah gramatika Arab klasik mu'tamad:
 
-| No | Nama Kitab | Penyusun / Ulama | Disiplin Ilmu | Deskripsi Bahasan |
-|---|---|---|---|---|
-| 1 | **Al-Kawakib Ad-Durriyyah** *(Syarah Mutammimah)* | Syaikh Muhammad az-Zuhri al-Ghamrawi | Nahwu & Bahasa Arab | Kaidah kalam, tanda i'rab, bina' fa'il, na'at, athaf (412 Halaman) |
-| 2 | **Fathul Qarib al-Mujib** | Syaikh Ibnu Qasim al-Ghazi | Fiqih Syafi'i | Rujukan ibadah: Thaharah, Shalat, Zakat, Puasa, Mu'amalah (156 Halaman) |
-| 3 | **Safinatun Najah** | Syaikh Salim bin Sumair al-Hadhrami | Fiqih & Aqidah Dasar | Matan ringkas fardhu wudhu, rukun shalat, pembatal thaharah (48 Halaman) |
-| 4 | **Minhajuth Thalibin** | Imam Yahya bin Syaraf An-Nawawi | Fiqih Syafi'i Lanjutan | Rujukan fatwa mu'tamad furu'iyyah mazhab Syafi'i (342 Halaman) |
-| 5 | **Ta'limul Muta'allim** | Syaikh Burhanuddin Az-Zarnuji | Adab & Akhlaq Santri | Niat belajar, memuliakan guru & ilmu, adab thalabul 'ilmi (89 Halaman) |
-
-*Juga dipadankan dengan dalil hadits sahih dari **Riyadhus Shalihin**, **Bulughul Maram**, dan adab **Ihya' Ulumiddin**.*
+### 📖 **INTISARI KITAB AL-KAWAKIB AL-DURRIYYAH SYARAH MUTAMMIMAH AL-JURUMIYYAH**
+* **Karya:** Syaikh Muhammad az-Zuhri al-Ghamrawi (Syarah atas *Mutammimah Al-Jurumiyyah* karya Syaikh Syamsuddin Muhammad bin Muhammad ar-Ra'ini / Al-Haththab).
+* **Ukuran Berkas & Volume:** 284 Halaman Dokumen PDF (1.77 MB) / 272 Halaman Naskah Asli Kitab ($Halaman\_PDF = Halaman\_Kitab + 12$).
+* **Struktur Digital:** 558 segmen/bab terindeks leksikal & semantik secara utuh (dari Bab Kalam, Tanda I'rab, Ma'rifat-Nakirah, Af'al, Marfu'at, Manshubat, Mahfudhat, hingga Bab Idgham).
+* **Integrasi PDF Interaktif:**
+  - 🔗 **Buka Halaman Rujukan Langsung:** Setiap jawaban AI menyertakan sitasi halaman kitab & halaman PDF beserta tombol `[Buka Halaman Rujukan]` yang langsung mengarahkan peramban ke halaman PDF terkait (`/api/pdf#page=X`).
+  - 📥 **Unduh Naskah Resmi:** Tombol `[Unduh PDF]` (`/api/pdf?download=1`) untuk mengunduh naskah resmi pesantren kapan saja.
+  - 🌐 **Multilingual Presisi:** Teks Arab berharakat (*tasykil*) dan syarah bahasa Indonesia diproses secara harmonis tanpa kerusakan karakter (*encoding*) atau halusinasi makna.
 
 ---
 

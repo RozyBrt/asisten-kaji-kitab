@@ -81,7 +81,7 @@ export default function Header({ onMenuToggle, activeModuleLabel, onOpenResearch
                 {activeModuleLabel}
               </span>
               <span className="text-slate-300 text-xs hidden lg:inline">&bull;</span>
-              <span className="text-[11px] text-slate-500 hidden lg:inline">Korpus 4 Kitab Terindeks</span>
+              <span className="text-[11px] text-slate-500 hidden lg:inline">Rujukan Intisari Al-Kawakib (284 Halaman)</span>
             </div>
           </div>
         </div>

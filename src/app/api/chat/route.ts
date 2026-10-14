@@ -1,4 +1,5 @@
 // API Route Handler: /api/chat
+// Khusus Bidang Ilmu Nahwu & Naskah Intisari Kitab Al-Kawakib Ad-Durriyyah (284 Halaman)
 // Mendukung SumoPod (OpenAI-compatible) & Google Gemini API
 // Mendukung payload teks + gambar (Base64) Multimodal Vision
 // Otomatis fallback ke mock data jika API Key belum diisi
@@ -6,60 +7,50 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAiProviderStatus, getGeminiApiKey, getSumopodApiKey, type AiProviderMode } from '@/lib/ai-provider';
 import { getMockChatResponse } from '@/lib/mock-data';
-import { ChatApiRequest, ChatApiResponse } from '@/lib/types';
+import { ChatApiRequest, ChatApiResponse, KitabSource } from '@/lib/types';
 import { similaritySearch } from '@/lib/vectorStore';
 
-const SYSTEM_PROMPT = `Anda adalah Asisten AI Kaji Kitab & Turats, seorang khadim keilmuan Islam dan peneliti turats klasik (kitab kuning). Anda mengemban amanah ilmiah: wajib jujur, teliti, dan TIDAK BOLEH MEMALSUKAN atau MENCATUT isi kitab.
+const SYSTEM_PROMPT = `Anda adalah Asisten AI Kaji Kitab & Turats khusus bidang ilmu Nahwu & Gramatika Arab Klasik, seorang khadim keilmuan Islam di Dayah Perbatasan Minhajussalam.
+Rujukan primer dan utama Anda adalah naskah resmi:
+"INTISARI KITAB AL-KAWAKIB AL-DURRIYYAH SYARAH MUTAMMIMAH AL-JURUMIYYAH" (284 Halaman, Penerbit CV. Manhaji).
 
 PRINSIP UTAMA: INTEGRITAS ILMIAH & ANTI-HALUSINASI (SANGAT KETAT)
 1. DILARANG KERAS MENCATUT ISI KITAB (ZERO FALSE ATTRIBUTION):
-   - JANGAN PERNAH mengarang kalimat seolah-olah isi kitab tertentu (misal: "Dalam kitab Fathul Mu'in dijelaskan bahwa akal adalah alat memahami syariat..."). Ini adalah KEBOHONGAN ILMIAH yang merusak kredibilitas!
-   - Kitab fiqih matan/syarah (seperti Fathul Mu'in, Safinatun Najah, Fathul Qarib) fokus pada teknis hukum (syarat sah, rukun, pembatal), BUKAN uraian esai filsafat atau logika bebas.
-   - Jika pengguna bertanya tentang "Kenapa berakal / hikmah / alasan syariat":
-     * Jelaskan bahwa "Berakal" adalah SYARAT TAKLIF (beban syariat), berlandaskan hadits Nabi ﷺ: رُفِعَ الْقَلَمُ عَنْ ثَلاَثَةٍ: ... وَعَنِ الْمَجْنُونِ حَتَّى يَعْقِلَ (HR. Abu Dawud, Ahmad, dll).
-     * Dalam fiqih ibadah teknis, orang tidak berakal tidak sah wudhunya karena tidak memenuhi syarat TAMYIZ dan tidak sah NIAT-nya.
-     * Rujuklah hadits tersebut atau kitab ushul/kaidah fiqih, JANGAN mencatut kitab fiqih praktis dengan narasi buatan sendiri.
+   - JANGAN PERNAH mengarang kaidah nahwu atau menyandarkan kalimat buatan sendiri seolah-olah isi kitab!
+   - Jawaban Anda harus bersumber dari naskah Al-Kawakib Ad-Durriyyah dan kaidah nahwu mu'tamad (seperti Bab Kalam, I'rab, Tanda Rofa', Fa'il, Na'ibul Fa'il, Mubtada Khabar, Amil Nawasikh Kaana/Inna, Isim Ghairu Munsharif, Tamyiz, Hal, Maf'ul Bih, dll).
+   - Jika pengguna bertanya tentang fiqih atau materi di luar nahwu, jelaskan secara santun bahwa fokus kajian meja telaah ini saat ini dikhususkan pada gramatika bahasa Arab dan kaidah naskah Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah Al-Jurumiyyah.
 
-2. PENEMPATAN DISIPLIN RUJUKAN SECARA TEPAT:
-   - Fiqih Teknis (Rukun, Syarat Sah, Pembatal, Tata Cara): Safinatun Najah (Syaikh Salim bin Sumair), Fathul Qarib (Ibnu Qasim al-Ghazi), Fathul Mu'in (Syaikh Zainuddin al-Malibari), Minhajuth Thalibin (Imam An-Nawawi).
-   - Dalil & Hadits Nabi: Riyadhus Shalihin, Bulughul Maram, Shahih Bukhari, Shahih Muslim, Sunan Abi Dawud.
-   - Hikmah Ibadah, Adab Hati, & Tasawuf: Ihya' Ulumiddin, Bidayatul Hidayah (Imam Al-Ghazali), Ta'limul Muta'allim (Syaikh Az-Zarnuji).
-   - RAG / Dokumen Upload: Jika ada potongan teks relevan dari Knowledge Base yang dilampirkan, jadikan itu rujukan utama. Jika TIDAK ADA potongan teks yang dilampirkan, rujuklah kitab turats yang lazim sesuai topik yang ditanyakan.
+2. PENYAJIAN SITASI DAN RUJUKAN HALAMAN PRESISI:
+   - Pada setiap jawaban (kecuali sapaan chit-chat pendek), Anda WAJIB mengisi array "sources" dengan rujukan ke naskah Al-Kawakib:
+     * "kitabName": "Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah"
+     * "bab": Nama Bab/Fasal spesifik (misal: "Bab Tentang Pembahasan Kalam", "Fasal Kaana dan Saudaranya", dll).
+     * "halaman": Format "Hal. X (PDF Hal. Y)". Contoh: "Hal. 1 (PDF Hal. 13)" jika materi ada di halaman 1 kitab / halaman 13 PDF.
+     * "pdfPage": Angka nomor halaman PDF (integer, misal 13).
+     * "pdfUrl": URL halaman PDF, format: "/api/pdf#page=Y" (misal: "/api/pdf#page=13").
+   - Jika ada potongan "KONTEKS DARI KITAB YANG TELAH DIUNGGAH", perhatikan penanda [Hal. Kitab: X | Hal. PDF: Y] pada potongan tersebut dan gunakan nomor halaman tersebut secara akurat!
 
 3. PEDOMAN GAYA BAHASA:
-   - Bertutur santun, mengalir, runtut, dan jelas layaknya seorang ustadz menerangkan kepada santrinya.
-   - Bedakan dengan tegas: mana yang merupakan NASH/TEKS KITAB, mana yang merupakan DALIL HADITS, dan mana yang merupakan PENJELASAN HIKMAH UMUM.
-   - Tidak perlu menyebutkan nomor halaman (cukup sebutkan Nama Kitab, Pengarang, dan Bab/Fasal/Materi spesifik).
-   - Cantumkan teks Arab matan/ayat/hadits berharakat di properti "arabicText".
+   - Bertutur santun, runtut, mengalir, dan bernas layaknya seorang guru nahwu/ustadz menerangkan kepada santrinya.
+   - Cantumkan teks Arab matan/kaidah berharakat rapi di properti "arabicText".
 
-4. MULTIMODAL VISION OCR NASKAH KITAB (JIKA MENERIMA GAMBAR / FOTO LEMBARAN KITAB):
-   - Transkripsikan teks Arab matan/ibarat kitab yang terbaca pada gambar ke properti "arabicText" secara lengkap dan berharakat rapi.
-   - Set "isOcr": true pada JSON output.
-   - Pada "reply", berikan ulasan komprehensif:
-     * Makna & Terjemah ibarat kitab.
-     * Syarah & Uraian Fiqih / Nahwu / Adab dari ibarat tersebut.
-   - Pada "sources", sebutkan identifikasi nama kitab atau bab materi yang dibahas.
+4. MULTIMODAL VISION OCR NASKAH KITAB:
+   - Jika menerima foto lembaran kitab naskah, transkripsikan teks Arab matan yang terbaca secara berharakat ke properti "arabicText", berikan syarah kaidah nahwunya, set "isOcr": true, dan sebutkan bab rujukan Al-Kawakib yang bersesuaian.
 
-5. RESPON TERHADAP SAPAAN, UCAPAN TERIMA KASIH, ATAU RESPON PENDEK (CHIT-CHAT):
-   - Jika pengguna hanya merespon singkat ("oke", "oke baik", "terima kasih", "syukron", "alhamdulillah", "siap", dll):
-     * Balas dengan hangat, santun, dan ringkas (1-2 kalimat), misalnya: "Sama-sama / Afwan. Semoga pembahasannya bermanfaat dan barakah. Jika ada materi atau naskah kitab lain yang ingin dikaji, silakan sampaikan ya."
-     * DILARANG KERAS tiba-tiba mengarang penjelasan kitab baru atau membahas materi yang tidak diminta!
-     * Kosongkan properti "arabicText" ("").
-     * Jadikan properti "sources" array kosong ([]).
+5. RESPON TERHADAP CHIT-CHAT & PERTANYAAN LANJUTAN:
+   - Jika pengguna hanya merespon pendek ("oke", "terima kasih", "alhamdulillah", "siap", dll), balas dengan santun (1-2 kalimat), kosongkan "arabicText" (""), dan jadikan "sources": [].
+   - Jika pengguna meminta "jelaskan lebih rinci", lanjutkan dan perdalam bab nahwu yang sedang dibahas sebelumnya.
 
-6. PERTANYAAN LANJUTAN (FOLLOW-UP):
-   - Jika pengguna meminta "jelaskan lebih rinci", "apa dalilnya", "maksudnya bagaimana", dll:
-     * Fokus lanjutkan dan perdalam topik dari naskah atau pembahasan yang SEDANG dibicarakan pada pesan sebelumnya (lihat konteks percakapan).
-     * JANGAN melompat ke kitab atau topik lain yang tidak relevan.
-
-FORMAT OUTPUT JSON (Wajib JSON murni yang valid tanpa teks pembuka/penutup):
+FORMAT OUTPUT JSON (Wajib JSON murni valid):
 {
-  "reply": "Penjelasan mendalam, jujur, mengalir, dan bernas. Bedakan antara hukum fiqih, dalil hadits, dan hikmah.",
-  "arabicText": "Teks Arab matan/hadits/ayat yang relevan berharakat (kosongkan jika tidak ada)",
+  "reply": "Uraian kaidah nahwu mendalam, runtut, dan jelas berpedoman pada kitab Al-Kawakib.",
+  "arabicText": "Teks Arab matan/kaidah berharakat rapi (kosongkan jika tidak ada)",
   "sources": [
     {
-      "kitabName": "Nama Kitab / Kitab Hadits lengkap beserta Penulis/Perawi",
-      "bab": "Bab/Fasal pembahasan yang benar-benar memuat materi tersebut"
+      "kitabName": "Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah",
+      "bab": "Bab/Fasal spesifik terkait",
+      "halaman": "Hal. 1 (PDF Hal. 13)",
+      "pdfPage": 13,
+      "pdfUrl": "/api/pdf#page=13"
     }
   ],
   "isOcr": false
@@ -68,7 +59,7 @@ FORMAT OUTPUT JSON (Wajib JSON murni yang valid tanpa teks pembuka/penutup):
 // Deteksi ungkapan singkat / chit-chat / salam / terima kasih yang tidak memerlukan pencarian korpus
 function isChitChatMessage(text: string): boolean {
   if (!text) return false;
-  const clean = text.trim().toLowerCase().replace(/[.,!?;:()_\\-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const clean = text.trim().toLowerCase().replace(/[.,!?;:()_\-]/g, ' ').replace(/\s+/g, ' ').trim();
   const chitchatPatterns = [
     /^(oke|ok|oke baik|baik|baiklah|sip|siap|siap ustadz|siap ustad)$/i,
     /^(terima kasih|terimakasih|makasih|makasih ya|makasih banyak|nuhun|matur nuwun)$/i,
@@ -83,7 +74,7 @@ function isChitChatMessage(text: string): boolean {
 // Deteksi pertanyaan lanjutan pendek (follow-up) tanpa subjek spesifik
 function isFollowUpQuery(text: string): boolean {
   if (!text) return false;
-  const clean = text.trim().toLowerCase().replace(/[.,!?;:()_\\-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const clean = text.trim().toLowerCase().replace(/[.,!?;:()_\-]/g, ' ').replace(/\s+/g, ' ').trim();
   const followUpPatterns = [
     /^(jelaskan|terangkan|uraikan|rincikan|bisa jelaskan)\s+(lebih\s+)?(rinci|detail|lengkap|mendalam|jelas)$/i,
     /^(lebih\s+rinci|lebih\s+detail|lebih\s+lengkap|lebih\s+jelas|lebih\s+mendalam)$/i,
@@ -96,14 +87,37 @@ function isFollowUpQuery(text: string): boolean {
   return followUpPatterns.some(pattern => pattern.test(clean));
 }
 
+function normalizeSources(sources: any[]): KitabSource[] {
+  if (!Array.isArray(sources)) return [];
+  return sources.map(s => {
+    let pdfPage = typeof s.pdfPage === 'number' ? s.pdfPage : undefined;
+    if (!pdfPage && s.halaman) {
+      const match = s.halaman.match(/PDF\s*(?:Hal\.|Halaman)?\s*(\d+)/i) || s.halaman.match(/(?:Hal\.|Halaman)?\s*(\d+)/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        pdfPage = num <= 272 ? num + 12 : num;
+      }
+    }
+    const finalPdfPage = pdfPage || 13;
+    const bookPage = Math.max(1, finalPdfPage - 12);
+    return {
+      kitabName: s.kitabName || 'Intisari Kitab Al-Kawakib Al-Durriyyah',
+      bab: s.bab || 'Kaidah Nahwu',
+      halaman: s.halaman || `Hal. ${bookPage} (PDF Hal. ${finalPdfPage})`,
+      pdfPage: finalPdfPage,
+      pdfUrl: `/api/pdf#page=${finalPdfPage}`,
+    };
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body: ChatApiRequest = await request.json();
+    const body = (await request.json()) as ChatApiRequest;
     const { message, image, conversationHistory } = body;
 
     if (!message && !image) {
       return NextResponse.json(
-        { error: 'Pesan atau gambar diperlukan.' },
+        { error: 'Pesan atau gambar harus disertakan.' },
         { status: 400 }
       );
     }
@@ -111,18 +125,18 @@ export async function POST(request: NextRequest) {
     const sumopodApiKey = getSumopodApiKey();
     const geminiApiKey = getGeminiApiKey();
 
-    const isChitChat = isChitChatMessage(message || '');
-    const isFollowUp = isFollowUpQuery(message || '');
+    const isChitChat = !image && isChitChatMessage(message || '');
+    const isFollowUp = !image && isFollowUpQuery(message || '');
 
-    // Ambil konteks relevan dari Knowledge Base RAG HANYA jika bukan chit-chat, bukan follow-up, dan bukan gambar
+    // Ambil konteks relevan dari Korpus Al-Kawakib HANYA jika bukan chit-chat, bukan follow-up, dan bukan gambar
     let ragContext = '';
-    if (!image && !isChitChat && !isFollowUp && message && message.trim().length > 3) {
+    if (!image && !isChitChat && !isFollowUp && message && message.trim().length > 2) {
       try {
-        const ragChunks = await similaritySearch(message, 4, 0.48);
+        const ragChunks = await similaritySearch(message, 4, 0.40);
         if (ragChunks.length > 0) {
-          ragContext = '\n=== KONTEKS DARI KITAB YANG TELAH DIUNGGAH (HANYA GUNAKAN JIKA RELEVAN DENGAN PERTANYAAN) ===\n' +
+          ragContext = '\n=== KONTEKS NASKAH KITAB AL-KAWAKIB AL-DURRIYYAH (284 HALAMAN) ===\n' +
             ragChunks.join('\n\n---\n\n') +
-            '\n=== AKHIR KONTEKS KITAB ===\n';
+            '\n=== AKHIR KONTEKS NASKAH ===\n';
         }
       } catch (e) {
         console.error("RAG similarity search failed:", e);
@@ -133,6 +147,7 @@ export async function POST(request: NextRequest) {
     if (sumopodApiKey) {
       try {
         const response = await callSumoPodApi(sumopodApiKey, message, image, conversationHistory, ragContext, isChitChat);
+        response.sources = normalizeSources(response.sources || []);
         return withProviderStatus(response, 'sumopod');
       } catch (sumoError) {
         console.error('SumoPod API error, mencoba fallback:', sumoError);
@@ -143,6 +158,7 @@ export async function POST(request: NextRequest) {
     if (geminiApiKey && geminiApiKey.trim() !== '') {
       try {
         const response = await callGeminiApi(geminiApiKey, message, image, conversationHistory, ragContext, isChitChat);
+        response.sources = normalizeSources(response.sources || []);
         return withProviderStatus(response, 'gemini');
       } catch (geminiError) {
         console.error('Gemini API error, mencoba fallback:', geminiError);
@@ -150,8 +166,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Mock Fallback (Jika API key belum diisi atau kedua API gagal)
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 800));
-    const mockResponse = getMockChatResponse(message || '', !!image);
+    await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 600));
+    const mockResponse = getMockChatResponse(message || '', image);
+    mockResponse.sources = normalizeSources(mockResponse.sources || []);
     return withProviderStatus(mockResponse, 'mock');
 
   } catch (error) {
@@ -206,8 +223,8 @@ async function callSumoPodApi(
 
   if (image) {
     const ocrInstruction = message && message.trim()
-      ? `Instruksi pengguna: "${message}"\nTolong transkripsikan teks Arab pada foto naskah kitab ini secara akurat (lengkap dengan harakat pada arabicText), berikan terjemahan dan syarah penjelasannya secara mendalam, serta sebutkan rujukan kitab atau bab pembahasannya.`
-      : 'Tolong transkripsikan teks Arab pada foto naskah kitab ini secara akurat (lengkap dengan harakat pada arabicText), berikan terjemahan dan syarah penjelasannya secara mendalam, serta sebutkan rujukan kitab atau bab pembahasannya.';
+      ? `Instruksi pengguna: "${message}"\nTolong transkripsikan teks Arab pada foto naskah kitab Al-Kawakib ini secara akurat (lengkap dengan harakat pada arabicText), berikan uraian syarah kaidah nahwunya, serta cantumkan rujukan halaman berkas PDF rujukan.`
+      : 'Tolong transkripsikan teks Arab pada foto naskah kitab Al-Kawakib ini secara akurat (lengkap dengan harakat pada arabicText), berikan uraian syarah kaidah nahwunya, serta cantumkan rujukan halaman berkas PDF rujukan.';
 
     messages.push({
       role: 'user',
@@ -217,7 +234,7 @@ async function callSumoPodApi(
       ]
     });
   } else {
-    let finalUserText = message || 'Mohon penjelasan materi kitab turats terkait.';
+    let finalUserText = message || 'Mohon penjelasan kaidah nahwu dari naskah Al-Kawakib terkait.';
     if (isChitChat) {
       finalUserText = `[Pengguna merespon singkat: "${message}"]. Balas dengan ramah, santun, dan singkat (1-2 kalimat). JANGAN mengarang atau memunculkan materi kitab baru yang tidak ditanyakan. Kosongkan arabicText ("") dan jadikan sources array kosong ([]).`;
     } else if (ragContext) {
@@ -288,7 +305,7 @@ async function callGeminiApi(
     parts.push({ text: `Konteks percakapan sebelumnya:\n${contextText}\n\n` });
   }
 
-  let finalGemText = message || 'Tolong analisis dan transkripsi gambar halaman kitab ini.';
+  let finalGemText = message || 'Tolong analisis dan transkripsi naskah halaman kitab nahwu ini.';
   if (isChitChat) {
     finalGemText = `[Pengguna merespon singkat: "${message}"]. Balas dengan ramah, santun, dan singkat (1-2 kalimat). JANGAN mengarang atau memunculkan materi kitab baru yang tidak ditanyakan. Kosongkan arabicText ("") dan jadikan sources array kosong ([]).`;
   } else if (ragContext) {

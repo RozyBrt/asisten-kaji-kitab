@@ -124,7 +124,7 @@ export async function GET() {
   }
 }
 
-const PROTECTED_DOC_IDS = ['safinatun-najah', 'fathul-qarib', 'talimul-mutaallim', 'al-kawakib-ad-durriyyah'];
+const PROTECTED_DOC_IDS = ['doc-1', 'al-kawakib-ad-durriyyah'];
 
 // DELETE: Hapus dokumen
 export async function DELETE(request: NextRequest) {

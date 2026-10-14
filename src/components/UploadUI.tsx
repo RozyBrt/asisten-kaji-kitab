@@ -65,7 +65,7 @@ function CategoryBadge({ category }: { category?: string }) {
   );
 }
 
-const PROTECTED_DOC_IDS = ['safinatun-najah', 'fathul-qarib', 'talimul-mutaallim', 'al-kawakib-ad-durriyyah'];
+const PROTECTED_DOC_IDS = ['doc-1', 'al-kawakib-ad-durriyyah'];
 
 function isProtectedDoc(id: string): boolean {
   if (!id) return false;
@@ -123,7 +123,7 @@ export default function UploadUI() {
     return matchSearch && matchCat;
   });
 
-  const categories = ['Semua', 'Fiqih', 'Hadits', 'Gramatika Nahwu', 'Akhlaq', 'Kajian Turats'];
+  const categories = ['Semua', 'Nahwu & Gramatika Arab Klasik', "Kaidah I'rab", 'Syarah Mutammimah', 'Dokumen Tambahan'];
 
   return (
     <div className="min-h-full w-full bg-slate-50 p-3 sm:p-6 lg:p-8 pb-20">
