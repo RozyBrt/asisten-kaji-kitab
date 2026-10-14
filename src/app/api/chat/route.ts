@@ -106,8 +106,24 @@ function isFollowUpQuery(text: string): boolean {
     /^(maksudnya apa|maksudnya gimana|maksudnya bagaimana)$/i,
     /^(kenapa begitu|kenapa demikian|mengapa begitu)$/i,
     /^(lalu bagaimana|lalu gimana|kemudian bagaimana)$/i,
+    /^(tolong\s+)?(berikan|mana|minta|tampilkan|ada)?\s*(rujukan|rujukannya|referensi|referensinya|halamannya|halaman)\s*$/i,
+    /^(tolong\s+)?(di\s+)?halaman\s+berapa(\s+itu|\s+ini|\s+ya)?\s*$/i,
+    /^(bisa\s+)?(kasih|minta|tampilkan)\s+rujukan(nya)?\s*$/i,
   ];
   return followUpPatterns.some(pattern => pattern.test(clean));
+}
+
+// Ekstrak topik bahasan sebelumnya dari riwayat percakapan untuk pertanyaan lanjutan
+function getFollowUpContext(conversationHistory?: { role: string; content: string }[]): string {
+  if (!conversationHistory || conversationHistory.length === 0) return '';
+  for (let i = conversationHistory.length - 1; i >= 0; i--) {
+    const item = conversationHistory[i];
+    if (item.content && item.content.length > 15) {
+      // Ambil penggalan kalimat awal dari jawaban asisten sebelumnya
+      return item.content.slice(0, 300);
+    }
+  }
+  return '';
 }
 
 function normalizeSources(sources: any[]): KitabSource[] {
@@ -241,6 +257,35 @@ function findCanonicalMatan(query: string, bab: string): string | null {
   return null;
 }
 
+
+// Pencocokan otomatis rujukan naskah untuk hasil foto OCR kitab Al-Kawakib
+async function matchImageToKawakib(response: ChatApiResponse): Promise<KitabSource[]> {
+  const textToScan = `${response.arabicText || ''} ${response.reply.slice(0, 350)}`;
+  const chunks = await searchKawakibChunks(textToScan, 3);
+  
+  if (chunks.length > 0) {
+    const top = chunks[0];
+    // Hindari salah tangkap ke Daftar Isi kecuali naskah memang foto daftar isi
+    if (top.bab.includes('Daftar Isi') && !textToScan.toLowerCase().includes('daftar isi')) {
+      return [];
+    }
+
+    const babWords = top.bab.toLowerCase().split(/[\s,()]+/).filter(w => w.length >= 3 && !['bab', 'tentang', 'fasal', 'dan', 'dari'].includes(w));
+    const hasBabMatch = babWords.some(kw => textToScan.toLowerCase().includes(kw));
+
+    if (hasBabMatch) {
+      return [{
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: top.bab,
+        halaman: `Hal. ${top.bookPage} (PDF Hal. ${top.pdfPage})`,
+        pdfPage: top.pdfPage,
+        pdfUrl: `/baca?page=${top.pdfPage}`,
+      }];
+    }
+  }
+  return [];
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as ChatApiRequest;
@@ -259,12 +304,16 @@ export async function POST(request: NextRequest) {
     const isChitChat = !image && isChitChatMessage(message || '');
     const isFollowUp = !image && isFollowUpQuery(message || '');
 
-    // Ambil konteks relevan dari Korpus Al-Kawakib HANYA jika bukan chit-chat, bukan follow-up, dan bukan gambar
+    // Ambil konteks relevan dari Korpus Al-Kawakib
     let ragContext = '';
     let matchedChunks: KawakibChunk[] = [];
-    if (!image && !isChitChat && !isFollowUp && message && message.trim().length > 2) {
+    const searchQuery = isFollowUp 
+      ? getFollowUpContext(conversationHistory)
+      : (message || '');
+
+    if (!image && !isChitChat && searchQuery && searchQuery.trim().length > 2) {
       try {
-        matchedChunks = await searchKawakibChunks(message, 4);
+        matchedChunks = await searchKawakibChunks(searchQuery, 4);
         if (matchedChunks.length > 0) {
           const canonicalMatan = findCanonicalMatan(message, matchedChunks[0]?.bab || '');
           const matanNotice = canonicalMatan
@@ -309,6 +358,9 @@ export async function POST(request: NextRequest) {
       try {
         const response = await callSumoPodApi(sumopodApiKey, message, image, conversationHistory, ragContext, isChitChat);
         response.sources = bindVerifiedSources(response.sources || []);
+        if (image && response.sources.length === 0) {
+          response.sources = await matchImageToKawakib(response);
+        }
         return withProviderStatus(response, 'sumopod');
       } catch (sumoError) {
         console.error('SumoPod API error, mencoba fallback:', sumoError);
@@ -320,6 +372,9 @@ export async function POST(request: NextRequest) {
       try {
         const response = await callGeminiApi(geminiApiKey, message, image, conversationHistory, ragContext, isChitChat);
         response.sources = bindVerifiedSources(response.sources || []);
+        if (image && response.sources.length === 0) {
+          response.sources = await matchImageToKawakib(response);
+        }
         return withProviderStatus(response, 'gemini');
       } catch (geminiError) {
         console.error('Gemini API error, mencoba fallback:', geminiError);
