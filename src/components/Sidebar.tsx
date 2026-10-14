@@ -112,8 +112,8 @@ export default function Sidebar({ activeModule, onModuleChange, isOpen, onClose 
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          <p className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+        <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
+          <p className="px-3 pt-1 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             Menu Kajian
           </p>
           {navItems.map((item) => {
@@ -128,30 +128,32 @@ export default function Sidebar({ activeModule, onModuleChange, isOpen, onClose 
                 }}
                 className={`
                   w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
-                  transition-all duration-150 text-left
+                  transition-all duration-150 text-left relative
                   ${isActive
-                    ? 'bg-emerald-50 border border-emerald-200 text-emerald-900 font-medium'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
+                    ? 'bg-emerald-950/[0.05] border border-emerald-900/15 text-emerald-950 font-medium shadow-2xs'
+                    : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 border border-transparent'
                   }
                 `}
               >
                 <div className={`
                   p-2 rounded-lg transition-colors flex-shrink-0
                   ${isActive
-                    ? 'bg-emerald-700 text-white shadow-xs'
+                    ? 'bg-emerald-900 text-amber-100 shadow-2xs'
                     : 'bg-slate-100 text-slate-500'
                   }
                 `}>
                   {item.icon}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold truncate leading-snug">{item.label}</p>
-                  <p className={`text-[11px] truncate ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}>
+                  <p className={`text-xs font-semibold truncate leading-snug ${isActive ? 'text-emerald-950' : 'text-slate-800'}`}>
+                    {item.label}
+                  </p>
+                  <p className={`text-[11px] truncate ${isActive ? 'text-emerald-800/80 font-medium' : 'text-slate-400'}`}>
                     {item.description}
                   </p>
                 </div>
                 {isActive && (
-                  <div className="w-1.5 h-6 bg-emerald-600 rounded-full flex-shrink-0" />
+                  <span className="w-1 h-5 bg-emerald-800 rounded-full flex-shrink-0" />
                 )}
               </button>
             );
