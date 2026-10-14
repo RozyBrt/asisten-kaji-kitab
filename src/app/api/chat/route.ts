@@ -349,6 +349,104 @@ function withProviderStatus(response: ChatApiResponse, mode: AiProviderMode) {
 // ============================================================
 // Integrasi SumoPod (OpenAI Compatible)
 // ============================================================
+
+function cleanJsonString(raw: string): string {
+  let cleaned = raw.trim();
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '').trim();
+  }
+  return cleaned;
+}
+
+function safeParseApiResponse(rawText: string): ChatApiResponse {
+  if (!rawText || !rawText.trim()) {
+    return { reply: 'Maaf, tidak ada respons yang dihasilkan.', sources: [] };
+  }
+
+  const cleaned = cleanJsonString(rawText);
+
+  // 1. Coba parse JSON murni
+  try {
+    const parsed = JSON.parse(cleaned);
+    if (parsed && typeof parsed === 'object') {
+      const reply = typeof parsed.reply === 'string' ? parsed.reply : '';
+      if (reply) {
+        return {
+          reply,
+          arabicText: typeof parsed.arabicText === 'string' ? parsed.arabicText : undefined,
+          sources: Array.isArray(parsed.sources) ? parsed.sources : [],
+          isOcr: Boolean(parsed.isOcr),
+        };
+      }
+    }
+  } catch {
+    // Abaikan error dan gunakan pemulihan cerdas di bawah
+  }
+
+  // 2. Pemulihan Cerdas jika JSON terpotong / malformed
+  let extractedReply = '';
+  let extractedArabic = '';
+
+  const replyMatch = cleaned.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (replyMatch) {
+    try {
+      extractedReply = JSON.parse(`"${replyMatch[1]}"`);
+    } catch {
+      extractedReply = replyMatch[1]
+        .replace(/\\n/g, '\n')
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, '\\')
+        .replace(/\\r/g, '');
+    }
+  } else {
+    // Jika terpotong di tengah sebelum kutip penutup
+    const cutMatch = cleaned.match(/"reply"\s*:\s*"([\s\S]*)/);
+    if (cutMatch) {
+      let cut = cutMatch[1];
+      cut = cut.replace(/"\s*,?\s*"arabicText"[\s\S]*$/, '')
+               .replace(/"\s*,?\s*"sources"[\s\S]*$/, '')
+               .replace(/"\s*\}?\s*$/, '');
+      extractedReply = cut
+        .replace(/\\n/g, '\n')
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, '\\')
+        .replace(/\\r/g, '');
+    }
+  }
+
+  const arabicMatch = cleaned.match(/"arabicText"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (arabicMatch) {
+    try {
+      extractedArabic = JSON.parse(`"${arabicMatch[1]}"`);
+    } catch {
+      extractedArabic = arabicMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+    }
+  }
+
+  if (extractedReply.trim()) {
+    return {
+      reply: extractedReply.trim(),
+      arabicText: extractedArabic.trim() || undefined,
+      sources: [],
+      isOcr: true,
+    };
+  }
+
+  // 3. Fallback pembersihan string mentah jika diawali { "reply"
+  const fallback = cleaned
+    .replace(/^\{?\s*"reply"\s*:\s*"?/, '')
+    .replace(/"?\s*,?\s*"arabicText"[\s\S]*$/, '')
+    .replace(/"?\s*,?\s*"sources"[\s\S]*$/, '')
+    .replace(/"?\s*\}?\s*$/, '')
+    .replace(/\\n/g, '\n')
+    .replace(/\\"/g, '"');
+
+  return {
+    reply: fallback.trim() || cleaned,
+    sources: [],
+  };
+}
+
 async function callSumoPodApi(
   apiKey: string,
   message: string,
@@ -416,7 +514,7 @@ async function callSumoPodApi(
       messages,
       response_format: { type: 'json_object' },
       temperature: 0.3,
-      max_tokens: 3000
+      max_tokens: 4000
     })
   });
 
@@ -432,15 +530,7 @@ async function callSumoPodApi(
     throw new Error('Respons kosong dari SumoPod');
   }
 
-  try {
-    const parsed = JSON.parse(rawContent) as ChatApiResponse;
-    return parsed;
-  } catch {
-    return {
-      reply: rawContent,
-      sources: []
-    };
-  }
+  return safeParseApiResponse(rawContent);
 }
 
 // ============================================================
@@ -489,7 +579,7 @@ async function callGeminiApi(
     },
     generationConfig: {
       temperature: 0.3,
-      maxOutputTokens: 3000,
+      maxOutputTokens: 4000,
       responseMimeType: 'application/json',
     },
   };
@@ -514,12 +604,5 @@ async function callGeminiApi(
     throw new Error('Empty response from Gemini API');
   }
 
-  try {
-    return JSON.parse(rawText) as ChatApiResponse;
-  } catch {
-    return {
-      reply: rawText,
-      sources: [],
-    };
-  }
+  return safeParseApiResponse(rawText);
 }

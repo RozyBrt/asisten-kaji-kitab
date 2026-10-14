@@ -89,11 +89,36 @@ function TypingIndicator() {
   );
 }
 
+
+function cleanRawContent(text: string): string {
+  if (!text) return '';
+  let clean = text.trim();
+  if (clean.startsWith('{') && clean.includes('"reply"')) {
+    try {
+      const parsed = JSON.parse(clean);
+      if (parsed && typeof parsed.reply === 'string') {
+        return parsed.reply;
+      }
+    } catch {
+      const match = clean.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)/);
+      if (match) {
+        return match[1]
+          .replace(/\\n/g, '\n')
+          .replace(/\\"/g, '"')
+          .replace(/\\\\/g, '\\')
+          .replace(/\\r/g, '')
+          .replace(/"\s*,?\s*[\s\S]*$/, '');
+      }
+    }
+  }
+  return text;
+}
+
 // Helper Markdown Parser untuk Tampilan Chat & Ekspor PDF
 function renderMarkdown(rawText: string, isPdf = false): string {
   if (!rawText) return '';
 
-  let html = rawText.replace(/\r\n/g, '\n');
+  let html = cleanRawContent(rawText).replace(/\r\n/g, '\n');
 
   // 1. Headings (###, ##, #)
   html = html
