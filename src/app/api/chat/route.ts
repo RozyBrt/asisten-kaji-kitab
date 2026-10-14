@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAiProviderStatus, getGeminiApiKey, getSumopodApiKey, type AiProviderMode } from '@/lib/ai-provider';
 import { getMockChatResponse } from '@/lib/mock-data';
 import { ChatApiRequest, ChatApiResponse, KitabSource } from '@/lib/types';
-import { similaritySearch } from '@/lib/vectorStore';
+import { similaritySearch, searchKawakibChunks, type KawakibChunk } from '@/lib/vectorStore';
 
 const SYSTEM_PROMPT = `Anda adalah Asisten AI Kaji Kitab & Turats khusus bidang ilmu Nahwu & Gramatika Arab Klasik, seorang khadim keilmuan Islam di Dayah Perbatasan Minhajussalam.
 Rujukan primer dan utama Anda adalah naskah resmi:
@@ -139,24 +139,39 @@ export async function POST(request: NextRequest) {
 
     // Ambil konteks relevan dari Korpus Al-Kawakib HANYA jika bukan chit-chat, bukan follow-up, dan bukan gambar
     let ragContext = '';
+    let matchedChunks: KawakibChunk[] = [];
     if (!image && !isChitChat && !isFollowUp && message && message.trim().length > 2) {
       try {
-        const ragChunks = await similaritySearch(message, 4, 0.40);
-        if (ragChunks.length > 0) {
+        matchedChunks = await searchKawakibChunks(message, 4);
+        if (matchedChunks.length > 0) {
           ragContext = '\n=== KONTEKS NASKAH KITAB AL-KAWAKIB AL-DURRIYYAH (284 HALAMAN) ===\n' +
-            ragChunks.join('\n\n---\n\n') +
+            matchedChunks.map(c => c.text).join('\n\n---\n\n') +
             '\n=== AKHIR KONTEKS NASKAH ===\n';
         }
       } catch (e) {
-        console.error("RAG similarity search failed:", e);
+        console.error("RAG search failed:", e);
       }
     }
+
+    // Helper untuk mengikat sitasi terverifikasi dari chunk naskah langsung (mencegah halusinasi nomor halaman AI)
+    const bindVerifiedSources = (rawSources: any[]): KitabSource[] => {
+      if (matchedChunks.length > 0) {
+        return matchedChunks.slice(0, 3).map(c => ({
+          kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+          bab: c.bab,
+          halaman: `Hal. ${c.bookPage} (PDF Hal. ${c.pdfPage})`,
+          pdfPage: c.pdfPage,
+          pdfUrl: c.pdfUrl,
+        }));
+      }
+      return normalizeSources(rawSources || []);
+    };
 
     // 1. Prioritaskan SumoPod jika API Key SumoPod tersedia
     if (sumopodApiKey) {
       try {
         const response = await callSumoPodApi(sumopodApiKey, message, image, conversationHistory, ragContext, isChitChat);
-        response.sources = normalizeSources(response.sources || []);
+        response.sources = bindVerifiedSources(response.sources || []);
         return withProviderStatus(response, 'sumopod');
       } catch (sumoError) {
         console.error('SumoPod API error, mencoba fallback:', sumoError);
@@ -167,7 +182,7 @@ export async function POST(request: NextRequest) {
     if (geminiApiKey && geminiApiKey.trim() !== '') {
       try {
         const response = await callGeminiApi(geminiApiKey, message, image, conversationHistory, ragContext, isChitChat);
-        response.sources = normalizeSources(response.sources || []);
+        response.sources = bindVerifiedSources(response.sources || []);
         return withProviderStatus(response, 'gemini');
       } catch (geminiError) {
         console.error('Gemini API error, mencoba fallback:', geminiError);

@@ -156,6 +156,11 @@ function calculateLexicalScore(query: string, chunk: KawakibChunk): number {
     }
   }
 
+  // 3. Bonus prioritas jika chunk memuat pembuka bab/definisi utama
+  if (chunk.text.includes('بَاب') || chunk.text.includes('Bab Tentang') || chunk.text.includes('Definisi')) {
+    score += 15;
+  }
+
   return score;
 }
 
