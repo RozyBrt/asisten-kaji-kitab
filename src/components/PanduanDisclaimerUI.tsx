@@ -440,15 +440,7 @@ export default function PanduanDisclaimerUI() {
                 </div>
               </div>
 
-              {/* Defense preparation */}
-              <div className="p-4 bg-[#FCFAF6] border border-[#E7DFC6] rounded-xl space-y-2">
-                <h4 className="text-xs font-bold text-[#8B1E24] uppercase tracking-wider">
-                  Catatan Pembelaan Saat Sesi Tanya-Jawab Juri:
-                </h4>
-                <p className="text-xs text-stone-700 leading-relaxed">
-                  Bila dewan juri menguji pertanyaan di luar naskah kitab nahwu (misal: bab fiqih muamalah atau jinayat), sistem akan memberikan jawaban konseptual umum disertai penegasan bahwa korpus primer yang saat ini terindeks secara mendalam adalah gramatika bahasa Arab <em>Al-Kawakib Al-Durriyyah</em>. Peta jalan berikutnya mencakup ekspansi korpus ke rumpun kitab fikih (Fathul Qarib, Al-Bajuri) dan ushul fikih.
-                </p>
-              </div>
+
             </div>
           </div>
         )}
