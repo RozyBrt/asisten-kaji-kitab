@@ -83,6 +83,21 @@ FORMAT OUTPUT JSON (Wajib JSON murni valid):
 function isChitChatMessage(text: string): boolean {
   if (!text) return false;
   const clean = text.trim().toLowerCase().replace(/[.,!?;:()_\-]/g, ' ').replace(/\s+/g, ' ').trim();
+  
+  // Kata-kata sopan santun / chit-chat pesantren
+  const chitChatTokens = new Set([
+    'oke', 'ok', 'baik', 'baiklah', 'sip', 'siap', 'terima', 'kasih', 'terimakasih',
+    'makasih', 'ya', 'banyak', 'nuhun', 'matur', 'nuwun', 'syukron', 'syukran',
+    'jazakallah', 'khair', 'khairan', 'jazakallahu', 'barakallah', 'fiik', 'alhamdulillah',
+    'paham', 'mengerti', 'jelas', 'halo', 'hai', 'assalamualaikum', 'assalamu', 'alaikum',
+    'waalaikumsalam', 'salam', 'sama', 'afwan', 'ustadz', 'ustad', 'kaji', 'kitab'
+  ]);
+
+  const words = clean.split(' ').filter(w => w.length > 0);
+  if (words.length > 0 && words.every(w => chitChatTokens.has(w))) {
+    return true;
+  }
+
   const chitchatPatterns = [
     /^(oke|ok|oke baik|baik|baiklah|sip|siap|siap ustadz|siap ustad)$/i,
     /^(terima kasih|terimakasih|makasih|makasih ya|makasih banyak|nuhun|matur nuwun)$/i,
@@ -357,9 +372,14 @@ export async function POST(request: NextRequest) {
     if (sumopodApiKey) {
       try {
         const response = await callSumoPodApi(sumopodApiKey, message, image, conversationHistory, ragContext, isChitChat);
-        response.sources = bindVerifiedSources(response.sources || []);
-        if (image && response.sources.length === 0) {
-          response.sources = await matchImageToKawakib(response);
+        if (isChitChat) {
+          response.sources = [];
+          response.arabicText = '';
+        } else {
+          response.sources = bindVerifiedSources(response.sources || []);
+          if (image && response.sources.length === 0) {
+            response.sources = await matchImageToKawakib(response);
+          }
         }
         return withProviderStatus(response, 'sumopod');
       } catch (sumoError) {
@@ -371,9 +391,14 @@ export async function POST(request: NextRequest) {
     if (geminiApiKey && geminiApiKey.trim() !== '') {
       try {
         const response = await callGeminiApi(geminiApiKey, message, image, conversationHistory, ragContext, isChitChat);
-        response.sources = bindVerifiedSources(response.sources || []);
-        if (image && response.sources.length === 0) {
-          response.sources = await matchImageToKawakib(response);
+        if (isChitChat) {
+          response.sources = [];
+          response.arabicText = '';
+        } else {
+          response.sources = bindVerifiedSources(response.sources || []);
+          if (image && response.sources.length === 0) {
+            response.sources = await matchImageToKawakib(response);
+          }
         }
         return withProviderStatus(response, 'gemini');
       } catch (geminiError) {

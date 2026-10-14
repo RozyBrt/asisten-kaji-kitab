@@ -356,7 +356,8 @@ export async function searchKawakibChunks(query: string, k = 4): Promise<Kawakib
 
   const topCandidates = scored.filter(s => s.score > 0.1);
   if (topCandidates.length === 0) {
-    return scored.slice(0, 1).map(s => s.chunk);
+    // Jika tidak ada bab yang relevan (skor 0), jangan paksa rujukan Hal. 1!
+    return [];
   }
 
   // Ambil bab utama dari pemenang peringkat 1
