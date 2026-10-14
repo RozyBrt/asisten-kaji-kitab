@@ -59,6 +59,16 @@ Fokus utama pada pembaruan pamungkas ini adalah **penyempurnaan pembuktian ilmia
 
 ---
 
+### 4.4 Sanitasi Kartu Rujukan Percakapan & Chit-Chat (Zero-Citation on Greetings)
+- **Problem:** Ketika santri/pengguna mengucapkan salam santun atau ucapan terima kasih lanjutan (misal: *"oke baik. Terimakasih"*), sistem sempat menampilkan rujukan Bab Kalam (Hal. 1-3).
+- **Penyebab:** Evaluasi regex pola tunggal belum mencakup variasi kombinasi kata santun majemuk, serta mekanisme *fallback* pencarian vektor sempat memilih chunk pertama saat skor relevansi bernilai 0.
+- **Solusi Ilmiah & Arsitektur:**
+  1. *Token-Based Courtesy Filter:* Menerapkan filter berbasis *Set of Courtesy Tokens* yang secara cerdas mendeteksi segala kombinasi kata santun pesantren (terima kasih, jazakallah, syukran, alhamdulillah, siap ustadz, dll).
+  2. *Strict Zero-Source Guarantee:* Pada respon chit-chat/ungkapan terima kasih, `sources` dipaksa kosong (`[]`) dan `arabicText` dikosongkan (`''`), sehingga jawaban tampil murni sebagai respon dialog yang hangat tanpa memaksakan rujukan kitab.
+  3. *Zero-Score Vector Guard:* Pada `vectorStore.ts`, jika tidak ada kandidat bab dengan relevansi > 0.1, sistem mengembalikan array kosong (`[]`) daripada memaksakan bab acak/halaman pertama.
+
+---
+
 ## 5. Ringkasan Kesiapan Akhir untuk Dewan Juri Lomba
 Aplikasi web **Asisten Kaji Kitab & Turats** (`asisten-kajian.online`) kini telah berada pada kondisi prima (*production-ready*) dengan keunggulan ilmiah:
 
