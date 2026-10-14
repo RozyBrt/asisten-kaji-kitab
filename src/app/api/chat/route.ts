@@ -29,7 +29,7 @@ PRINSIP UTAMA: INTEGRITAS ILMIAH & ANTI-HALUSINASI (SANGAT KETAT)
      * "bab": Nama Bab/Fasal spesifik (misal: "Bab Tentang Pembahasan Kalam", "Fasal Kaana dan Saudaranya", dll).
      * "halaman": Format "Hal. X (PDF Hal. Y)". Contoh: "Hal. 1 (PDF Hal. 13)" jika materi ada di halaman 1 kitab / halaman 13 PDF.
      * "pdfPage": Angka nomor halaman PDF (integer, misal 13).
-     * "pdfUrl": URL halaman PDF, format: "/api/pdf#page=Y" (misal: "/api/pdf#page=13").
+     * "pdfUrl": URL halaman PDF, format: "/api/pdf#page=Y" (misal: "/baca?page=13").
    - KONSISTENSI RUJUKAN NASKAH (SANGAT KRUSIAL):
      * Setiap kali diberikan bagian "KONTEKS NASKAH KITAB AL-KAWAKIB AL-DURRIYYAH", perhatikan penanda header di awal tiap potongan:
        [Kitab: Intisari Al-Kawakib Al-Durriyyah Syarah Mutammimah | Bab: <NAMA_BAB> | Hal. Kitab: <NOMOR_KITAB> | Hal. PDF: <NOMOR_PDF>]
@@ -73,7 +73,7 @@ FORMAT OUTPUT JSON (Wajib JSON murni valid):
       "bab": "Bab/Fasal spesifik terkait",
       "halaman": "Hal. 1 (PDF Hal. 13)",
       "pdfPage": 13,
-      "pdfUrl": "/api/pdf#page=13"
+      "pdfUrl": "/baca?page=13"
     }
   ],
   "isOcr": false
@@ -128,7 +128,7 @@ function normalizeSources(sources: any[]): KitabSource[] {
       bab: s.bab || 'Kaidah Nahwu',
       halaman: s.halaman || `Hal. ${bookPage} (PDF Hal. ${finalPdfPage})`,
       pdfPage: finalPdfPage,
-      pdfUrl: `/api/pdf#page=${finalPdfPage}`,
+      pdfUrl: `/baca?page=${finalPdfPage}`,
     };
   });
 }
@@ -296,7 +296,7 @@ export async function POST(request: NextRequest) {
           bab: c.bab,
           halaman: `Hal. ${c.bookPage} (PDF Hal. ${c.pdfPage})`,
           pdfPage: c.pdfPage,
-          pdfUrl: c.pdfUrl,
+          pdfUrl: `/baca?page=${c.pdfPage}`,
         }));
       }
       return normalizeSources(rawSources || []);
