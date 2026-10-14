@@ -103,33 +103,60 @@ async function embedText(text: string): Promise<number[]> {
   return json.data[0].embedding as number[];
 }
 
-/** Hitung skor relevansi leksikal (istilah nahwu, kata kunci, dan bab) */
-function calculateLexicalScore(query: string, chunk: KawakibChunk): number {
-  const qClean = query.toLowerCase().replace(/[^a-z0-9؀-ۿs]/gi, ' ');
-  const tokens = qClean.split(/\s+/).filter(t => t.length > 2);
-  if (tokens.length === 0) return 0;
+// Stopwords percakapan bahasa Indonesia agar tidak mendistorsi pencarian istilah nahwu
+const NAHWU_STOPWORDS = new Set([
+  'tolong', 'jelaskan', 'terangkan', 'uraikan', 'tentang', 'apa', 'itu', 'bagaimana',
+  'adalah', 'mohon', 'maksud', 'dari', 'pada', 'yang', 'dalam', 'dan', 'atau', 'seperti',
+  'merupakan', 'secara', 'menurut', 'kitab', 'bisa', 'kah', 'apakah', 'pengertian',
+  'definisi', 'makna', 'arti', 'hukum', 'kaidah', 'contoh'
+]);
 
-  const babLower = chunk.bab.toLowerCase();
-  const textLower = chunk.text.toLowerCase();
+// Normalisasi teks gramatika Arab/Indonesia (menghilangkan apostrof seperti fa'il -> fail)
+function normalizeNahwuText(str: string): string {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .replace(/['’‘`]/g, '') // fa'il -> fail, na'ibul -> naibul, i'rab -> irab
+    .replace(/[^a-z0-9\u0600-\u06FF\s]/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Hitung skor relevansi leksikal berbobot tinggi untuk naskah Al-Kawakib */
+function calculateLexicalScore(query: string, chunk: KawakibChunk): number {
+  const normQuery = normalizeNahwuText(query);
+  const rawTokens = normQuery.split(/\s+/).filter(t => t.length >= 2);
+  if (rawTokens.length === 0) return 0;
+
+  // Filter stopwords, gunakan rawTokens jika semuanya adalah stopwords
+  const meaningfulTokens = rawTokens.filter(t => !NAHWU_STOPWORDS.has(t));
+  const tokens = meaningfulTokens.length > 0 ? meaningfulTokens : rawTokens;
+
+  const babNorm = normalizeNahwuText(chunk.bab);
+  const textNorm = normalizeNahwuText(chunk.text);
 
   let score = 0;
 
   for (const token of tokens) {
-    // Bobot tinggi jika kata kunci cocok dengan judul Bab/Fasal
-    if (babLower.includes(token)) {
-      score += 1.5;
+    // 1. Bobot sangat tinggi jika kata kunci ada dalam nama Bab/Fasal
+    if (babNorm.includes(token)) {
+      score += 25;
+      // Bonus jika diawali 'bab [token]' atau 'fasal [token]'
+      if (babNorm.includes('bab ' + token) || babNorm.includes('fasal ' + token)) {
+        score += 20;
+      }
     }
 
-    // Hitung frekuensi dalam teks chunk
-    if (textLower.includes(token)) {
-      score += 0.5;
-      const count = (textLower.match(new RegExp(token, 'g')) || []).length;
-      score += Math.min(count * 0.1, 0.5);
+    // 2. Bobot kemunculan dalam isi teks naskah
+    if (textNorm.includes(token)) {
+      score += 3;
+      // Hitung frekuensi kemunculan (dibatasi agar tidak bias)
+      const count = textNorm.split(token).length - 1;
+      score += Math.min(count * 0.8, 12);
     }
   }
 
-  // Normalisasi skor leksikal
-  return score / (tokens.length * 1.5);
+  return score;
 }
 
 /** Pencarian khusus pada korpus Al-Kawakib yang mengembalikan metadata lengkap */
