@@ -299,7 +299,9 @@ export async function POST(request: NextRequest) {
           pdfUrl: `/baca?page=${c.pdfPage}`,
         }));
       }
-      return normalizeSources(rawSources || []);
+      // Jika pertanyaan atau naskah foto BUKAN bagian dari Al-Kawakib (misalnya kitab luar seperti 'Uqud al-Lujjain),
+      // jangan tampilkan rujukan palsu ke Hal. 1 Al-Kawakib! Kembalikan array kosong ([]).
+      return [];
     };
 
     // 1. Prioritaskan SumoPod jika API Key SumoPod tersedia
