@@ -295,10 +295,17 @@ function calculateLexicalScore(query: string, chunk: KawakibChunk): number {
       const count = (textNorm.match(new RegExp('\\b' + token + '\\b', 'gi')) || []).length;
       score += Math.min(count * 0.8, 12);
     }
+
+    // 3. Bonus sangat tinggi jika chunk memuat judul bab eksplisit di dalam teks
+    if (textNorm.includes('bab tentang ' + token) || textNorm.includes('bab ' + token)) {
+      score += 50;
+    }
   }
 
-  // 3. Bonus prioritas jika chunk memuat pembuka bab/definisi utama
-  if (chunk.text.includes('بَاب') || chunk.text.includes('Bab Tentang') || chunk.text.includes('Definisi') || chunk.text.includes('Pengertian')) {
+  // 4. Bonus prioritas jika chunk memuat pembuka bab / matan pokok
+  if (chunk.text.includes('بَاب') || chunk.text.includes('Bab Tentang')) {
+    score += 25;
+  } else if (chunk.text.includes('Definisi') || chunk.text.includes('Pengertian')) {
     score += 10;
   }
 
@@ -318,13 +325,45 @@ export async function searchKawakibChunks(query: string, k = 4): Promise<Kawakib
 
   scored.sort((a, b) => b.score - a.score);
 
-  // Ambil top-k yang memiliki skor relevan (> 0.1)
-  const results = scored
-    .filter(s => s.score > 0.1)
-    .slice(0, k)
+  const topCandidates = scored.filter(s => s.score > 0.1);
+  if (topCandidates.length === 0) {
+    return scored.slice(0, 1).map(s => s.chunk);
+  }
+
+  // Ambil bab utama dari pemenang peringkat 1
+  const topBab = topCandidates[0].chunk.bab;
+  const topScore = topCandidates[0].score;
+
+  // Filter kandidat yang relevan dari bab utama tersebut
+  const relevantFromTopBab = topCandidates
+    .filter(s => s.chunk.bab === topBab && s.score >= topScore * 0.4)
     .map(s => s.chunk);
 
-  return results.length > 0 ? results : scored.slice(0, 1).map(s => s.chunk);
+  // KUNCI PRESISI SANTRI: Urutkan chunk dari Bab yang sama secara KRONOLOGIS menurut nomor halaman (pdfPage) ASCENDING!
+  // Sehingga Halaman 1 / Judul Bab dan Definisi Awal selalu menjadi Kartu 1.
+  relevantFromTopBab.sort((a, b) => a.pdfPage - b.pdfPage);
+
+  const result: KawakibChunk[] = [];
+  const seenPages = new Set<number>();
+
+  for (const c of relevantFromTopBab) {
+    if (!seenPages.has(c.pdfPage)) {
+      seenPages.add(c.pdfPage);
+      result.push(c);
+      if (result.length >= k) break;
+    }
+  }
+
+  // Jika masih butuh chunk tambahan, ambil dari kandidat berikutnya
+  for (const item of topCandidates) {
+    if (!seenPages.has(item.chunk.pdfPage)) {
+      seenPages.add(item.chunk.pdfPage);
+      result.push(item.chunk);
+      if (result.length >= k) break;
+    }
+  }
+
+  return result.slice(0, k);
 }
 
 /** Simpan chunk-chunk teks tambahan ke vector store */

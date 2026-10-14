@@ -83,6 +83,33 @@ const kawakibMockResponses: Record<string, ChatApiResponse> = {
       },
     ],
   },
+  'muthlaq': {
+    reply: `**Definisi dan Ketentuan Maf'ul Muthlaq (Al-Mashdar)** menurut naskah **Al-Kawakib Ad-Durriyyah Syarah Mutammimah Al-Jurumiyyah**:\n\nMaf'ul Muthlaq adalah mashdar yang berstatus fadh-lah (pelengkap yang bukan penopang pokok kalimat seperti musnad-musnad ilaih) yang berfungsi untuk menguatkan amilnya, menerangkan jenisnya (macam amil), atau menerangkan bilangannya.\n\n**Tiga Fungsi Pokok Maf'ul Muthlaq:**\n1. **Al-Mu'akkid li 'Amilihi (Penguat Amil / Taukidi):** Contoh: ضَرَبْتُ ضَرْبًا (Aku benar-benar memukul).\n2. **Al-Mubayyin li Nau'ihi (Penjelas Macam Amil / Naw'i):** Contoh: جَلَسْتُ جُلُوسَ الْقَارِئِ (Aku duduk seperti duduknya seorang qari).\n3. **Al-Mubayyin li 'Adadihi (Penjelas Bilangan Amil / 'Adadi):** Contoh: ضَرَبْتُ زَيْدًا ضَرْبَتَيْنِ (Aku memukul Zaid dua kali pukulan).\n\n**Dua Pembagian Lafazh Mashdar:**\n1. **Lafzhi:** Jika lafazh mashdar bersesuaian dengan lafazh fi'il amilnya, seperti: قَتَلْتُهُ قَتْلًا.\n2. **Ma'nawi:** Jika mashdar bersesuaian dengan makna fi'ilnya tetapi berbeda lafazhnya, seperti: جَلَسْتُ قُعُودًا.`,
+    arabicText: `اَلْمَفْعُولُ الْمُطْلَقُ هُوَ : اَلْمَصْدَرُ الْفَضْلَةُ الْمُؤَكِّدُ لِعَامِلِهِ أَوْ الْمُبَيِّنُ لِنَوْعِهِ أَوْ عَدَدِهِ .`,
+    sources: [
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: "Bab Maf'ul Muthlaq / Al-Mashdar (Taukidi, Naw'i, 'Adadi)",
+        halaman: 'Hal. 135 (PDF Hal. 147)',
+        pdfPage: 147,
+        pdfUrl: '/api/pdf#page=147',
+      },
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: "Bab Maf'ul Muthlaq / Al-Mashdar (Taukidi, Naw'i, 'Adadi)",
+        halaman: 'Hal. 137 (PDF Hal. 149)',
+        pdfPage: 149,
+        pdfUrl: '/api/pdf#page=149',
+      },
+      {
+        kitabName: 'Intisari Kitab Al-Kawakib Al-Durriyyah Syarah Mutammimah',
+        bab: "Bab Maf'ul Muthlaq / Al-Mashdar (Taukidi, Naw'i, 'Adadi)",
+        halaman: 'Hal. 138 (PDF Hal. 150)',
+        pdfPage: 150,
+        pdfUrl: '/api/pdf#page=150',
+      },
+    ],
+  },
   'sharaf': {
     reply: `**Isim Ghairu Munsharif (Isim Tegah Sharaf)** dalam **Al-Kawakib Ad-Durriyyah**:\n\nIsim yang tercegah dari tanwin dan ber-i'rab tanda jar dengan **fathah** (selama tidak di-idhafahkan atau kemasukan Alif Lam).\n\n**Sebab Tercegahnya:**\nMemiliki **dua 'illat cabang** (satu kembali ke lafazh dan satu ke makna), atau **satu 'illat yang menempati dua 'illat**:\n1. Satu 'illat menempati dua 'illat:\n   - Alif Ta'nits Maqshurah atau Mamdudah (contoh: حُبْلَى، حَمْرَاء).\n   - Shighat Muntahal Jumu' (contoh: مَسَاجِدُ، مَصَابِيحُ).\n2. Dua 'illat (Gabungan 'Alamiyyah atau Washfiyyah dengan 'illat lain seperti 'Udul, Ta'nits, Tarkib Mazji, Ziyadah Alif Nun, Wazan Fi'il, atau 'Ajamiyyah).`,
     arabicText: `وَالْمَمْنُوعُ مِنَ الصَّرْفِ هُوَ مَا فِيهِ عِلَّتَانِ فَرْعِيَّتَانِ مِنْ تِسْعِ عِلَلٍ أَوْ وَاحِدَةٌ تَقُومُ مَقَامَهُمَا...`,
