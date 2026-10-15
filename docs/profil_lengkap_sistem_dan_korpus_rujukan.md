@@ -170,7 +170,7 @@ git pull origin master
 npm run build
 
 # 4. Muat ulang service aplikasi
-pm2 restart asisten-turats
+pm2 restart asisten-kaji-kitab
 ```
 
 ---

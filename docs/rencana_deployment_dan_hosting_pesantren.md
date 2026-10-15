@@ -20,7 +20,7 @@ Aplikasi *Asisten Kaji Kitab & Turats* kini telah berhasil dipublikasikan dan be
 | **Sistem Operasi** | Ubuntu Server 24.04 LTS (64-bit) |
 | **Spesifikasi Server** | 2 vCPU, 2 GB RAM Fisik + 3.9 GB Virtual Swap Memory (Total ~5.9 GB) |
 | **Penyimpanan** | 40 GB NVMe Storage |
-| **Process Manager** | PM2 v7.0.4 (`asisten-turats` — Auto restart on boot via systemd) |
+| **Process Manager** | PM2 v7.0.4 (`asisten-kaji-kitab` — Auto restart on boot via systemd) |
 | **Web Server / Reverse Proxy** | Nginx (Max client body size 60 MB untuk dokumen kitab) |
 | **Keamanan SSL / TLS** | Let's Encrypt Authority X3 (Auto-renew aktif via Certbot) |
 | **Provider AI Aktif** | SumoPod AI (`gpt-4o-mini` & `text-embedding-3-small`) |
@@ -59,9 +59,9 @@ sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapf
 *Hasil:* Kapasitas memori server meningkat menjadi ~5.9 GB, mencegah risiko *Out of Memory* saat kompilasi atau saat puluhan santri mengunggah PDF bersamaan.
 
 ### B. Otomasi PM2 (Zero Downtime)
-Aplikasi didaftarkan dengan nama `asisten-turats`:
+Aplikasi didaftarkan dengan nama `asisten-kaji-kitab`:
 ```bash
-pm2 start npm --name "asisten-turats" -- start -- -p 3000
+pm2 start npm --name "asisten-kaji-kitab" -- start -- -p 3000
 pm2 save
 pm2 startup systemd
 ```
@@ -112,11 +112,11 @@ Jika di kemudian hari ada pembaruan kode dari GitHub:
 4. Build ulang dan restart PM2:
    ```bash
    npm run build
-   pm2 restart asisten-turats
+   pm2 restart asisten-kaji-kitab
    ```
    *(Hanya butuh waktu sekitar 15 detik dan aplikasi langsung terupdate tanpa memutus koneksi pengguna).*
 
 ### Cara Memeriksa Log & Kesehatan Server:
 * Cek status proses: `pm2 status`
-* Cek log percakapan/error: `pm2 logs asisten-turats`
+* Cek log percakapan/error: `pm2 logs asisten-kaji-kitab`
 * Cek penggunaan RAM: `free -h`

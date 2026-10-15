@@ -67,7 +67,7 @@ Pada sesi pengembangan malam ini, fokus utama adalah mematangkan alur kerja **Mu
   cd ~/asisten-kaji-kitab
   git pull origin master
   npm run build
-  pm2 restart asisten-turats
+  pm2 restart asisten-kaji-kitab
   ```
 
 ---

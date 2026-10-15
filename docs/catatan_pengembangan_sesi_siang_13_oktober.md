@@ -44,5 +44,5 @@ Untuk menerapkan pembaruan ini di VPS produksi, jalankan:
 cd /var/www/asisten-kaji-kitab
 git pull origin master
 npm run build
-pm2 restart asisten-turats
+pm2 restart asisten-kaji-kitab
 ```
